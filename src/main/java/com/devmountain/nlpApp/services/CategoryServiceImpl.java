@@ -19,11 +19,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public List<String> addCategory(CategoryDto categoryDto) {
-        List<String> response = new ArrayList<>();
+    public Category addCategory(CategoryDto categoryDto) {
         Category category = new Category(categoryDto);
-        categoryRepository.saveAndFlush(category);
-       return response;
+        return categoryRepository.saveAndFlush(category);
     }
 
 //    @Override

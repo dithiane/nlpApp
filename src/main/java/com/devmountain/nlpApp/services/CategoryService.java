@@ -12,5 +12,5 @@ import java.util.Optional;
 
 public interface CategoryService {
     @Transactional
-    List<String> addCategory(CategoryDto categoryDto);
+    Category addCategory(CategoryDto categoryDto);
 }

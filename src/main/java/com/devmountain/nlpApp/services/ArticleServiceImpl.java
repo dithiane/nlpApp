@@ -9,10 +9,9 @@ import com.devmountain.nlpApp.repositories.ArticleRepository;
 import com.devmountain.nlpApp.repositories.CategoryRepository;
 import com.devmountain.nlpApp.repositories.UserRepository;
 
-//import org.json.JSONArray;
-//import org.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -139,29 +138,30 @@ public class ArticleServiceImpl implements ArticleService {
     // the transaction will be rolled back, undoing any changes made within the method.
     public void addArticle(ArticleDto articleDto, Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
-//        String s = getNlpCategory(articleDto.getBody());
-//        JSONObject json = new JSONObject(s);
-//;
-//        JSONArray responseArray = json.getJSONArray("category_list");
-//        JSONObject category = responseArray.getJSONObject(0);
-//
-//        articleDto.setRelevance(category.getInt("relevance"));
-//        String name = category.getString("label");
-        //     articleDto.set(category.getInt("relevance"));
+        String categoryName;
+        int categoryRelevance;
+        String s = getNlpCategory(articleDto.getBody());
+        JSONObject json = new JSONObject(s);
+;
+        JSONArray responseArray = json.getJSONArray("category_list");
+        if (responseArray.length() == 0) {
+            categoryName = "uncategorized";
+            categoryRelevance = 100;
+        }
+        else {
+            JSONObject category = responseArray.getJSONObject(0);
+            categoryName = category.getString("label");
+            categoryRelevance = category.getInt("relevance");
+        }
 
-        String name = "weather2";
-        Integer relevance = 100;
-        articleDto.setRelevance(relevance);
+        articleDto.setRelevance(categoryRelevance);
         Article article = new Article(articleDto);
 
-        Optional<Category> categoryOptional = categoryRepository.findByName(name);
+        Optional<Category> categoryOptional = categoryRepository.findByName(categoryName);
         if (categoryOptional.isEmpty()) {
-            CategoryDto categoryDto = new CategoryDto(name);
-            List<String> returnedCategory = categoryService.addCategory(categoryDto);
-//            categoryDto.setName(name);
-//            Category newCategory = new Category(categoryDto);
-//            Category returnedCategory = categoryRepository.saveAndFlush(newCategory);
-//            article.setCategory(returnedCategory);
+            CategoryDto categoryDto = new CategoryDto(categoryName);
+            Category returnedCategory = categoryService.addCategory(categoryDto);
+            article.setCategory(returnedCategory);
         } else {
             categoryOptional.ifPresent(article::setCategory);
         }
