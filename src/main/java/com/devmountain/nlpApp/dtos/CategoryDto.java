@@ -36,4 +36,8 @@ public class CategoryDto implements Serializable {
             this.name = category.getName();
         }
     }
+
+    public CategoryDto(String name) {
+        this.name = name;
+    }
 }

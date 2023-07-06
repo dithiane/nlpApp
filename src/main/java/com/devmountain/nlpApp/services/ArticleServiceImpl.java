@@ -149,14 +149,14 @@ public class ArticleServiceImpl implements ArticleService {
 //        String name = category.getString("label");
         //     articleDto.set(category.getInt("relevance"));
 
-        String name = "weather1";
+        String name = "weather2";
         Integer relevance = 100;
         articleDto.setRelevance(relevance);
         Article article = new Article(articleDto);
 
         Optional<Category> categoryOptional = categoryRepository.findByName(name);
         if (categoryOptional.isEmpty()) {
-            CategoryDto categoryDto = new CategoryDto();
+            CategoryDto categoryDto = new CategoryDto(name);
             List<String> returnedCategory = categoryService.addCategory(categoryDto);
 //            categoryDto.setName(name);
 //            Category newCategory = new Category(categoryDto);
