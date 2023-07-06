@@ -1,7 +1,9 @@
 package com.devmountain.nlpApp.entities;
 
 import com.devmountain.nlpApp.dtos.UserDto;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,9 +38,9 @@ public class User {
     @Column
     private String password;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-    @JsonManagedReference
-    private Set<Article> articleSet = new HashSet<>();
+//    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+//    @JsonManagedReference(value="user")
+//    private Set<Article> articleSet = new HashSet<>();
 
     public User(UserDto userDto){
         if (userDto.getUsername() != null){

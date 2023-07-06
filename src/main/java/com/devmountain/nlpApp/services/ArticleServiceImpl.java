@@ -1,11 +1,18 @@
 package com.devmountain.nlpApp.services;
 
 import com.devmountain.nlpApp.dtos.ArticleDto;
+import com.devmountain.nlpApp.dtos.CategoryDto;
 import com.devmountain.nlpApp.entities.Article;
+import com.devmountain.nlpApp.entities.Category;
 import com.devmountain.nlpApp.entities.User;
 import com.devmountain.nlpApp.repositories.ArticleRepository;
+import com.devmountain.nlpApp.repositories.CategoryRepository;
 import com.devmountain.nlpApp.repositories.UserRepository;
+
+//import org.json.JSONArray;
+//import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -13,10 +20,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -33,6 +37,11 @@ public class ArticleServiceImpl implements ArticleService {
     @Autowired
     private ArticleRepository articleRepository;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private CategoryService categoryService;
     // The @Override annotation is used to indicate that a method in a subclass is intended
     // to override a method with the same signature in its superclass or interface.
     @Override
@@ -47,7 +56,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Object getNlpCategory(Map<String, String> body) {
+    public String getNlpCategory(String body) {
         try {
             // Create the URL object with the endpoint URL
             URL url = new URL("https://api.meaningcloud.com/class-2.0");
@@ -68,7 +77,7 @@ public class ArticleServiceImpl implements ArticleService {
             // Create the request parameters
             String params = "key=a9d53d71789ba56da286b62b244cd877"+
                             "&model=IPTC_en"+
-                            "&txt=" + URLEncoder.encode(body.get("text"), "UTF-8");
+                            "&txt=" + URLEncoder.encode(body, "UTF-8");
 
             DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
             outputStream.writeBytes(params);
@@ -83,6 +92,7 @@ public class ArticleServiceImpl implements ArticleService {
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             String line;
             StringBuilder response = new StringBuilder();
+
             while ((line = reader.readLine()) != null) {
                 response.append(line);
             }
@@ -94,12 +104,12 @@ public class ArticleServiceImpl implements ArticleService {
 
             // Disconnect the connection
             connection.disconnect();
-            return responseCode == 200 ? response : Collections.emptyList();
+            return responseCode == 200 ? response.toString() : "";
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return null;
+        return "";
     }
 
     //  The getAllArticlesByBody method retrieves a list of ArticleDto objects based on the provided body and userId.
@@ -129,7 +139,33 @@ public class ArticleServiceImpl implements ArticleService {
     // the transaction will be rolled back, undoing any changes made within the method.
     public void addArticle(ArticleDto articleDto, Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
+//        String s = getNlpCategory(articleDto.getBody());
+//        JSONObject json = new JSONObject(s);
+//;
+//        JSONArray responseArray = json.getJSONArray("category_list");
+//        JSONObject category = responseArray.getJSONObject(0);
+//
+//        articleDto.setRelevance(category.getInt("relevance"));
+//        String name = category.getString("label");
+        //     articleDto.set(category.getInt("relevance"));
+
+        String name = "weather1";
+        Integer relevance = 100;
+        articleDto.setRelevance(relevance);
         Article article = new Article(articleDto);
+
+        Optional<Category> categoryOptional = categoryRepository.findByName(name);
+        if (categoryOptional.isEmpty()) {
+            CategoryDto categoryDto = new CategoryDto();
+            List<String> returnedCategory = categoryService.addCategory(categoryDto);
+//            categoryDto.setName(name);
+//            Category newCategory = new Category(categoryDto);
+//            Category returnedCategory = categoryRepository.saveAndFlush(newCategory);
+//            article.setCategory(returnedCategory);
+        } else {
+            categoryOptional.ifPresent(article::setCategory);
+        }
+
         userOptional.ifPresent(article::setUser);
         articleRepository.saveAndFlush(article);
     }

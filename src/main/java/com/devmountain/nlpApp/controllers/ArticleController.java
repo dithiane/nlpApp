@@ -5,6 +5,7 @@ import com.devmountain.nlpApp.services.ArticleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,7 +41,7 @@ public class ArticleController {
     }
 
     @PostMapping("/user/nlp/body")
-    public Object getNlpCategory(@RequestBody Map<String, String> body){
+    public Object getNlpCategory(@RequestBody String body){
         return articleService.getNlpCategory(body);
     }
 
@@ -53,8 +54,8 @@ public class ArticleController {
 
     // This annotation maps the HTTP POST requests with the URL pattern /api/v1/articles/user/{userId} to the addArticle() method.
     // It adds a new article by accepting an ArticleDto object in the request body and associating it with the specified user ID.
-    @PostMapping("/user/{userId}")
-    public void addArticle(@RequestBody ArticleDto articleDto, @PathVariable Long userId){
+    @PostMapping(value = "/user/{userId}")
+    public void addArticle(@RequestBody ArticleDto articleDto, @PathVariable Long userId) {
         articleService.addArticle(articleDto, userId);
     }
 

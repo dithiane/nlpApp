@@ -20,7 +20,7 @@ const headers = {
     'Content-Type': 'application/json'
 }
 
-const baseUrl = "http://localhost:8080/api/v1/article/"
+const baseUrl = "http://localhost:8080/api/v1/articles/"
 
 const toBase64 = file => new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -54,8 +54,8 @@ const handleSubmit = async (e) => {
     }
 
     let bodyObj = {
-                body: document.getElementById("article-input").value,
-                imageData : imageData
+                body: document.getElementById("article-input").value
+//                imageData : imageData
     }
     addArticle(bodyObj)
 
@@ -97,7 +97,7 @@ async function getArticlesByBody(body='') {
         .catch(err => console.error(err))
 }
 
-async function handleDelete(ArticleId){
+async function handleDelete(articleId){
     await fetch(baseUrl + articleId, {
         method: "DELETE",
         headers: headers
@@ -143,7 +143,6 @@ const createArticleCards = (array) => {
             <div class="card d-flex" ">
                 <div class="card-body d-flex flex-column  justify-content-between" style="height: available">
                     <p class="card-text">${obj.body}</p>
-                    <img src="${obj.imageData}" class="card-img"/>
                     <div class="d-flex justify-content-between">
                         <button class="btn btn-danger" onclick="handleDelete(${obj.id})">Delete</button>
                         <button onclick="getArticleById(${obj.id})" type="button" class="btn btn-primary"

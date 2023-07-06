@@ -28,27 +28,27 @@ public class Article {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(columnDefinition = "text")
     private String title;
 
-    @Column
+    @Column(columnDefinition = "text")
     private String body;
 
-    @Column
+    @Column(columnDefinition = "text")
     private String link;
 
-    @Column
+    @Column(columnDefinition = "integer")
     private Integer relevance;
 
-    @Column
+    @Column(columnDefinition = "date")
     private Date created;
 
     @ManyToOne
-    @JsonBackReference
+    @JsonBackReference(value="user")
     private User user;
 
     @ManyToOne
-    @JsonBackReference
+    @JsonBackReference(value="category")
     private Category category;
 
     public Article(ArticleDto articleDto){

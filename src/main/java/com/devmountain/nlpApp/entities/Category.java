@@ -34,9 +34,9 @@ public class Category {
     @Column(unique = true)
     private String name;
 
-    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-    @JsonManagedReference
-    private Set<Article> articleSet = new HashSet<>();
+//    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+//    @JsonManagedReference(value="category")
+//    private Set<Article> articleSet = new HashSet<>();
 
     public Category(CategoryDto categoryDto){
         if (categoryDto.getId() != null){
