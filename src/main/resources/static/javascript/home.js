@@ -8,19 +8,26 @@ console.log(userId)
 //DOM Elements
 const submitForm = document.getElementById("article-form")
 const articleContainer = document.getElementById("article-container")
+const categoryContainer = document.querySelector(".dropdown")
+const categoryContainerMenu = document.querySelector(".dropdown-menu")
 
+const alertBox = document.querySelector(".alert");
 const searchForm = document.getElementById("search-form")
 //const searchContainer = document.getElementById("search-container")
 
 //Modal Elements
 let articleBody = document.getElementById(`article-body`)
+let categoryName = document.getElementById(`category-name`)
 let updateArticleBtn = document.getElementById('update-article-button')
+let updateCategoryBtn = document.getElementById('update-category-button')
+let deleteCategoryBtn = document.getElementById('delete-category-button')
 
 const headers = {
     'Content-Type': 'application/json'
 }
 
 const baseUrl = "http://localhost:8080/api/v1/articles/"
+const categoriesUrl = "http://localhost:8080/api/v1/categories/"
 
 const toBase64 = file => new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -62,8 +69,6 @@ const handleSubmit = async (e) => {
     document.getElementById("article-input").value = ''
 }
 
-
-
 async function addArticle(obj) {
     const response = await fetch(`${baseUrl}user/${userId}`, {
         method: "POST",
@@ -82,7 +87,10 @@ async function getArticles(userId) {
         headers: headers
     })
         .then(response => response.json())
-        .then(data => createArticleCards(data))
+        .then(data => {
+            createArticleCards(data)
+            populateCategories(data)
+        })
         .catch(err => console.error(err))
 }
 
@@ -102,7 +110,7 @@ async function handleDelete(articleId){
         method: "DELETE",
         headers: headers
     })
-        .catch(err => console.error(err))
+    .catch(err => console.error(err))
 
     return getArticles(userId);
 }
@@ -133,12 +141,109 @@ async function handleArticleEdit(articleId){
     return getArticles(userId);
 }
 
+async function handleCategoryEdit(categoryId){
+    let bodyObj = {
+        id: categoryId,
+        name: categoryName.value
+    }
+
+    await fetch(categoriesUrl , {
+        method: "PUT",
+        body: JSON.stringify(bodyObj),
+        headers: headers
+    })
+    .catch(err => console.error(err))
+
+    return getArticles(userId);
+}
+
+const populateAlert = (text) => {
+    alertBox.innerHTML = text
+    alertBox.style.display = "block"
+    setTimeout(function(){
+        alertBox.style.display = "none"
+    }, 1500);
+}
+
+async function handleCategoryDelete(categoryId){
+    await fetch(categoriesUrl + categoryId , {
+        method: "DELETE",
+        headers: headers
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data) {
+            populateAlert(data) }
+    })
+    .catch(err => console.error(err))
+
+    return getArticles(userId);
+}
+
+async function changeCategoryForArticle(categoryId, articleId){
+    let bodyObj = {
+        id: articleId,
+        categoryId: categoryId
+    }
+
+     await fetch(baseUrl, {
+            method: "PUT",
+            body: JSON.stringify(bodyObj),
+            headers: headers
+        })
+        .catch(err => console.error(err))
+
+     return getArticles(userId);
+}
+
+const populateCategories = (array) => {
+    const categories = []
+//    const categoryContainerChange = document.querySelector(".dropdown-change")
+//    const categoryContainerMenuChange = document.querySelector(".dropdown-menu-change")
+    categoryContainerMenu.innerHTML = ''
+    const articleChildren = articleContainer.childNodes;
+
+//    categoryContainerChange.addEventListener("click", handleDropdownChangeClick)
+
+    if (!array.length) return
+    array.forEach(obj => {
+        if (categories.includes(obj.category.name)) return
+        let category = document.createElement("div");
+        let categoryChange = document.createElement("div");
+        categoryChange.id = obj.category.id
+        const buttonHTML = `
+           <button class="dropdown-item"
+               type="button"
+               value="${obj.id}"
+               data-bs-toggle="modal" data-bs-target="#category-edit-modal">
+               ${obj.category.name}
+           </button>`
+        let name = obj.category.name
+        let id = obj.category.id
+        category.innerHTML = buttonHTML
+        category.onclick = () => populateCategoryModal(obj.category)
+        categoryContainerMenu.append(category)
+
+        articleChildren.forEach((article) => {
+            const categoryContainerMenuChange = document.getElementById(`${article.id}_menu`)
+            const categoryContainerChange = document.getElementById(`${article.id}_dropdown`)
+            categoryContainerChange.addEventListener("click", handleDropdownChangeClick)
+            categoryContainerMenuChange.innerHTML = buttonHTML
+              //categoryChange.onclick = () => changeCategoryForArticle(obj.category, categoryContainerChange.id)
+        });
+
+        categories.push(obj.category.name)
+    })
+
+}
+
 const createArticleCards = (array) => {
     articleContainer.innerHTML = ''
     if (!array.length) return
     array.forEach(obj => {
         let articleCard = document.createElement("div")
         articleCard.classList.add("m-0")
+        articleCard.id = obj.id;
         articleCard.innerHTML = `
             <div class="card d-flex" ">
                 <div class="card-body d-flex flex-column  justify-content-between" style="height: available">
@@ -149,6 +254,15 @@ const createArticleCards = (array) => {
                         data-bs-toggle="modal" data-bs-target="#article-edit-modal">
                         Edit
                         </button>
+                    </div>
+                    <p class="card-text">${obj.category? obj.category.name : ""}</p>
+                    <div id="${obj.id}_dropdown" class="dropdown-change">
+                        <a class="btn btn-info dropdown-toggle" href="#" role="button"
+                            id="dropdownMenuLinkChange" data-toggle="dropdownchange" aria-haspopup="true"
+                            aria-expanded="false">
+                            Change category
+                        </a>
+                        <div id="${obj.id}_menu" class="dropdown-menu-change" aria-labelledby="dropdownMenuLink" aria-labelledby="dropdownMenuLink">
                     </div>
                 </div>
             </div>
@@ -163,19 +277,56 @@ function handleLogout(){
     }
 }
 
+const handleDropdownClick = (e) => {
+    e.preventDefault();
+    if (categoryContainerMenu.classList.contains("show")) {
+        categoryContainerMenu.classList.remove("show");
+    } else {
+        categoryContainerMenu.classList.add("show");
+    }
+}
+
+const handleDropdownChangeClick = (e) => {
+    e.preventDefault();
+    if (e.target.nextElementSibling?.classList.contains("show")) {
+        e.target.nextElementSibling?.classList.remove("show");
+    } else {
+        e.target.nextElementSibling?.classList.add("show");
+    }
+}
+
 const populateModal = (obj) =>{
     articleBody.innerText = ''
     articleBody.innerText = obj.body
     updateArticleBtn.setAttribute('data-article-id', obj.id)
 }
 
+const populateCategoryModal = (obj) =>{
+    categoryName.innerText = ''
+    categoryName.innerText = obj.name
+    updateCategoryBtn.setAttribute('data-category-id', obj.id)
+    deleteCategoryBtn.setAttribute('data-category-id', obj.id)
+}
+
+
 getArticles(userId);
 
 submitForm.addEventListener("submit", handleSubmit)
 
 searchForm.addEventListener("submit", handleSearchSubmit)
+categoryContainer.addEventListener("click", handleDropdownClick)
 
 updateArticleBtn.addEventListener("click", (e)=>{
     let articleId = e.target.getAttribute('data-article-id')
     handleArticleEdit(articleId);
+})
+
+updateCategoryBtn.addEventListener("click", (e)=>{
+    let categoryId = e.target.getAttribute('data-category-id')
+    handleCategoryEdit(categoryId);
+})
+
+deleteCategoryBtn.addEventListener("click", (e)=>{
+    let categoryId = e.target.getAttribute('data-category-id')
+    handleCategoryDelete(categoryId);
 })

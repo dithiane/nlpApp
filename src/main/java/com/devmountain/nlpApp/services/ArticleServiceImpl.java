@@ -21,18 +21,14 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-
-// @Service annotation is used to indicate that the class is a service component.
-// It allows the Spring container to automatically detect and create an instance of the service bean.
 @Service
 public class ArticleServiceImpl implements ArticleService {
-    // UserRepository: This is a repository interface that provides methods for performing database operations
-    // on the User entity. It is autowired into the ArticleServiceImpl class using the @Autowired annotation
+
     @Autowired
     private UserRepository userRepository;
-    // ArticleRepository: This is a repository interface that provides methods for performing database operations
-    // on the Article entity. It is autowired into the ArticleServiceImpl class using the @Autowired annotation
+
     @Autowired
     private ArticleRepository articleRepository;
 
@@ -45,17 +41,25 @@ public class ArticleServiceImpl implements ArticleService {
     // to override a method with the same signature in its superclass or interface.
     @Override
     public List<ArticleDto> getAllArticlesByUserId(Long userId){
-        //  Optional - It is used to represent an object that may or may not contain a non-null value.
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isPresent()){
             List<Article> articleList = articleRepository.findAllByUserEquals(userOptional.get());
-            return articleList.stream().map(ArticleDto::new).collect(Collectors.toList());
+            Stream <ArticleDto> articleListUpdated = articleList.stream().map(article -> {
+                ArticleDto articleDto = new ArticleDto();
+                articleDto.setId(article.getId());
+                articleDto.setTitle(article.getTitle());
+                articleDto.setBody(article.getBody());
+                articleDto.setCategory(article.getCategory());
+                return articleDto;
+            });
+            return articleListUpdated.collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
 
     @Override
-    public String getNlpCategory(String body) {
+    public CategoryProperties getNlpCategory(String body) {
+        CategoryProperties categoryProperties = new CategoryProperties();
         try {
             // Create the URL object with the endpoint URL
             URL url = new URL("https://api.meaningcloud.com/class-2.0");
@@ -103,12 +107,19 @@ public class ArticleServiceImpl implements ArticleService {
 
             // Disconnect the connection
             connection.disconnect();
-            return responseCode == 200 ? response.toString() : "";
+            JSONObject json = new JSONObject(response.toString());
+            JSONArray responseArray = json.getJSONArray("category_list");
+            if (responseArray.length() > 0) {
+                JSONObject category = responseArray.getJSONObject(0);
+                categoryProperties.label = category.getString("label");
+                categoryProperties.relevance = category.getInt("relevance");
+            }
+            return responseCode == 200 ? categoryProperties : null;
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return "";
+        return null;
     }
 
     //  The getAllArticlesByBody method retrieves a list of ArticleDto objects based on the provided body and userId.
@@ -133,33 +144,17 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    @Transactional // It means that when this method is invoked, a transaction will be started before the method
-    // execution and committed after the method completes. If an exception occurs during the method execution,
-    // the transaction will be rolled back, undoing any changes made within the method.
+    @Transactional
     public void addArticle(ArticleDto articleDto, Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
-        String categoryName;
-        int categoryRelevance;
-        String s = getNlpCategory(articleDto.getBody());
-        JSONObject json = new JSONObject(s);
-;
-        JSONArray responseArray = json.getJSONArray("category_list");
-        if (responseArray.length() == 0) {
-            categoryName = "uncategorized";
-            categoryRelevance = 100;
-        }
-        else {
-            JSONObject category = responseArray.getJSONObject(0);
-            categoryName = category.getString("label");
-            categoryRelevance = category.getInt("relevance");
-        }
 
-        articleDto.setRelevance(categoryRelevance);
+        CategoryProperties categoryProperties = getNlpCategory(articleDto.getBody());
+        articleDto.setRelevance(categoryProperties.relevance);
         Article article = new Article(articleDto);
 
-        Optional<Category> categoryOptional = categoryRepository.findByName(categoryName);
+        Optional<Category> categoryOptional = categoryRepository.findByName(categoryProperties.label);
         if (categoryOptional.isEmpty()) {
-            CategoryDto categoryDto = new CategoryDto(categoryName);
+            CategoryDto categoryDto = new CategoryDto(categoryProperties.label);
             Category returnedCategory = categoryService.addCategory(categoryDto);
             article.setCategory(returnedCategory);
         } else {

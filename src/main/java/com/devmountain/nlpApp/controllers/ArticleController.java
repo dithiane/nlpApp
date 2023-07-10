@@ -9,25 +9,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-// The ArticleController class is a controller class in the Spring Framework.
-// It handles incoming HTTP requests related to articles and interacts with the ArticleService to perform
-// the necessary operations.
-
-
-// @RestController: This annotation is used to indicate that the class is a RESTfull controller.
-// It combines the @Controller and @ResponseBody annotations, simplifying the creation of RESTfull APIs.
-
-// @RequestMapping("api/v1/article"): This annotation is used to specify the base URL path for all the endpoints defined
-// in the controller.
 @RestController
 @RequestMapping("api/v1/articles")
 public class ArticleController {
     @Autowired
     private ArticleService articleService;
-    //  This annotation maps the HTTP GET requests with the URL pattern /api/v1/articles/user/{userId}
-    //  to the getArticlesByUser() method.
-    //  It retrieves a list of ArticleDto objects associated with the specified user ID.
     @GetMapping("/user/{userId}")
     public List<ArticleDto> getArticlesByUser(@PathVariable Long userId){
         return articleService.getAllArticlesByUserId(userId);

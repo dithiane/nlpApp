@@ -1,6 +1,8 @@
 package com.devmountain.nlpApp.dtos;
 
 import com.devmountain.nlpApp.entities.Article;
+import com.devmountain.nlpApp.entities.Category;
+import com.devmountain.nlpApp.entities.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,8 +29,8 @@ public class ArticleDto {
     private String link;
     private Integer relevance;
     private Date created;
-    private UserDto userDto;
-    private CategoryDto categoryDto;
+    private User user;
+    private Category category;
 
     public ArticleDto(Article article) {
         if (article.getId() != null) {

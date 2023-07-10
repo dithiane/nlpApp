@@ -28,6 +28,10 @@ public class CategoryDto implements Serializable {
     private String name;
     private Set<ArticleDto> articleDtoSet = new HashSet<>();
 
+    public CategoryDto(String name) {
+        this.name = name;
+    }
+
     public CategoryDto(Category category) {
         if (category.getId() != null){
             this.id = category.getId();
@@ -36,8 +40,5 @@ public class CategoryDto implements Serializable {
             this.name = category.getName();
         }
     }
-
-    public CategoryDto(String name) {
-        this.name = name;
-    }
+    
 }

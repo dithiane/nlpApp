@@ -16,12 +16,23 @@
 <nav class="navbar bg-body-tertiary" style="background-color: #508bfc;">
     <div class="container-fluid">
         <a style="color:white">Welcome to the Nlp Application</a>
-        <form id="search-form" class="d-flex" role="search">
-            <input id="search-input" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-primary navbar-btn" style="margin: 5px" type="submit">Search</button>
-            <a class="btn btn-danger navbar-btn" style="margin: 5px" href="./login.html"
-               onclick="handleLogout()">Logout</a>
-        </form>
+        <div class="alert alert-primary" role="alert">
+
+        </div>
+       <div class="tools">
+           <div class="dropdown">
+           <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+               Edit Categories
+           </a><div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+       </div>
+           </div>
+           <form id="search-form" class="d-flex" role="search">
+               <input id="search-input" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+               <button class="btn btn-primary navbar-btn" style="margin: 5px" type="submit">Search</button>
+               <a class="btn btn-danger navbar-btn" style="margin: 5px" href="./login.html"
+                  onclick="handleLogout()">Logout</a>
+           </form>
+       </div>
     </div>
 </nav>
 
@@ -55,6 +66,29 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" id="update-article-button" class="btn btn-primary" data-bs-dismiss="modal">Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="category-edit-modal" data-bs-backdrop="static" tabindex="-1"
+     aria-labelledby="article-edit-modal-title" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="category-edit-modal-title">Edit your category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex">
+               <label for="category-name"></label><textarea class="form-control" rows="5" id="category-name"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="update-category-button" class="btn btn-primary" data-bs-dismiss="modal">Save
+                </button>
+                <button type="button" id="delete-category-button" class="btn btn-danger" data-bs-dismiss="modal">Delete
                 </button>
             </div>
         </div>
