@@ -2,32 +2,29 @@
 //Cookie
 const cookieArr = document.cookie.split("=")
 const userId = cookieArr[1];
-if (!userId) window.location.replace("http://localhost:8080/login.html");
-console.log(userId)
+let articleRepository = null;
+if (!userId) window.location.replace("http://localhost:8080/index.html");
 
 //DOM Elements
+const dropDownMenuItem= document.getElementById(".dropdown-item")
 const submitForm = document.getElementById("article-form")
-const articleContainer = document.getElementById("article-container")
-const categoryContainer = document.querySelector(".dropdown")
-const categoryContainerMenu = document.querySelector(".dropdown-menu")
+const articles = document.getElementById("article-container")
+const categoryEditContainer = document.querySelector(".dropdown-category-edit")
+const categoryEditContainerMenu = document.querySelector(".dropdown-menu-category-edit")
+
+const categorySortContainer = document.querySelector(".dropdown-category-sort")
+const categorySortContainerMenu = document.querySelector(".dropdown-menu-category-sort")
 
 const alertBox = document.querySelector(".alert");
 const searchForm = document.getElementById("search-form")
 //const searchContainer = document.getElementById("search-container")
 
 //Modal Elements
-let articleBody = document.getElementById(`article-body`)
-let categoryName = document.getElementById(`category-name`)
-let updateArticleBtn = document.getElementById('update-article-button')
-let updateCategoryBtn = document.getElementById('update-category-button')
-let deleteCategoryBtn = document.getElementById('delete-category-button')
-
-const headers = {
-    'Content-Type': 'application/json'
-}
-
-const baseUrl = "http://localhost:8080/api/v1/articles/"
-const categoriesUrl = "http://localhost:8080/api/v1/categories/"
+let articleBody = document.getElementById("article-body")
+let categoryName = document.getElementById("category-name")
+let updateArticleBtn = document.getElementById("update-article-button")
+let updateCategoryBtn = document.getElementById("update-category-button")
+let deleteCategoryBtn = document.getElementById("delete-category-button")
 
 const toBase64 = file => new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -61,8 +58,8 @@ const handleSubmit = async (e) => {
     }
 
     let bodyObj = {
-                body: document.getElementById("article-input").value
-//                imageData : imageData
+                body: document.getElementById("article-input").value,
+                imageData : imageData
     }
     addArticle(bodyObj)
 
@@ -70,7 +67,7 @@ const handleSubmit = async (e) => {
 }
 
 async function addArticle(obj) {
-    const response = await fetch(`${baseUrl}user/${userId}`, {
+    const response = await fetch(`${articleUrl}user/${userId}`, {
         method: "POST",
         body: JSON.stringify(obj),
         headers: headers
@@ -81,21 +78,33 @@ async function addArticle(obj) {
     }
 }
 
+const sortArticles = (data) => {
+     return data.sort((a, b) => b.updated.localeCompare(a.updated));
+}
+
+const sortArticlesByCategory = (category) => {
+    let sortedArticles = articleRepository
+    if (category.name !== "All categories")
+        sortedArticles = articleRepository.filter(article => article.category.id === category.id)
+    createArticleCards(sortedArticles)
+}
+
 async function getArticles(userId) {
-    await fetch(`${baseUrl}user/${userId}`, {
+    await fetch(`${articleUrl}user/${userId}`, {
         method: "GET",
         headers: headers
     })
         .then(response => response.json())
         .then(data => {
-            createArticleCards(data)
-            populateCategories(data)
+            articleRepository = sortArticles(data)
+            createArticleCards(articleRepository)
+            populateCategories(articleRepository)
         })
         .catch(err => console.error(err))
 }
 
 async function getArticlesByBody(body='') {
-    await fetch(`${baseUrl}user/body/${userId}`, {
+    await fetch(`${articleUrl}user/body/${userId}`, {
         method: "POST",
         body: body,
         headers: headers
@@ -105,8 +114,8 @@ async function getArticlesByBody(body='') {
         .catch(err => console.error(err))
 }
 
-async function handleDelete(articleId){
-    await fetch(baseUrl + articleId, {
+async function handleDeleteArticle(articleId){
+    await fetch(articleUrl + articleId, {
         method: "DELETE",
         headers: headers
     })
@@ -116,12 +125,12 @@ async function handleDelete(articleId){
 }
 
 async function getArticleById(articleId){
-    await fetch(baseUrl + articleId, {
+   await fetch(articleUrl+ articleId, {
         method: "GET",
         headers: headers
     })
         .then(res => res.json())
-        .then(data => populateModal(data))
+        .then(data => populateArticleModal(data))
         .catch(err => console.error(err.message))
 }
 
@@ -141,13 +150,14 @@ async function handleArticleEdit(articleId){
     return getArticles(userId);
 }
 
-async function handleCategoryEdit(categoryId){
+async function handleCategoryEdit(category){
+    if (!category) return
     let bodyObj = {
-        id: categoryId,
+        id: category,
         name: categoryName.value
     }
 
-    await fetch(categoriesUrl , {
+    await fetch(categoryUrl , {
         method: "PUT",
         body: JSON.stringify(bodyObj),
         headers: headers
@@ -157,16 +167,8 @@ async function handleCategoryEdit(categoryId){
     return getArticles(userId);
 }
 
-const populateAlert = (text) => {
-    alertBox.innerHTML = text
-    alertBox.style.display = "block"
-    setTimeout(function(){
-        alertBox.style.display = "none"
-    }, 1500);
-}
-
 async function handleCategoryDelete(categoryId){
-    await fetch(categoriesUrl + categoryId , {
+    await fetch(categoryUrl + categoryId , {
         method: "DELETE",
         headers: headers
     })
@@ -180,10 +182,18 @@ async function handleCategoryDelete(categoryId){
     return getArticles(userId);
 }
 
-async function changeCategoryForArticle(categoryId, articleId){
+async function changeCategoryForArticle(articleId, categoryId, allArticles){
+    const articleToChange = allArticles.find(article => article.id == articleId);
+    articleToChange.category.id = categoryId;
     let bodyObj = {
-        id: articleId,
-        categoryId: categoryId
+        id : articleToChange.id,
+        title : articleToChange.title,
+        body: articleToChange.body,
+        link: articleToChange.link,
+        relevance : articleToChange.relevance,
+        created: articleToChange.created,
+        user: articleToChange.user,
+        category: articleToChange.category
     }
 
      await fetch(baseUrl, {
@@ -196,78 +206,147 @@ async function changeCategoryForArticle(categoryId, articleId){
      return getArticles(userId);
 }
 
-const populateCategories = (array) => {
-    const categories = []
-//    const categoryContainerChange = document.querySelector(".dropdown-change")
-//    const categoryContainerMenuChange = document.querySelector(".dropdown-menu-change")
-    categoryContainerMenu.innerHTML = ''
-    const articleChildren = articleContainer.childNodes;
+const getButtonCategoryChange = (category) =>
+   ` <button
+        id=${category.id}
+        class="dropdown-item"
+        type="button">
+            ${category.name}
+     </button>`
 
-//    categoryContainerChange.addEventListener("click", handleDropdownChangeClick)
 
-    if (!array.length) return
-    array.forEach(obj => {
-        if (categories.includes(obj.category.name)) return
-        let category = document.createElement("div");
-        let categoryChange = document.createElement("div");
-        categoryChange.id = obj.category.id
-        const buttonHTML = `
-           <button class="dropdown-item"
-               type="button"
-               value="${obj.id}"
-               data-bs-toggle="modal" data-bs-target="#category-edit-modal">
-               ${obj.category.name}
-           </button>`
-        let name = obj.category.name
-        let id = obj.category.id
-        category.innerHTML = buttonHTML
-        category.onclick = () => populateCategoryModal(obj.category)
-        categoryContainerMenu.append(category)
+const populateCategoryMenu = (categories) =>  {
+     categoryEditContainerMenu.innerHTML = "";
+     categories.forEach(category => {
+            const categoryButton = document.createElement("button");
+            categoryButton.classList.add("dropdown-item");
+            categoryButton.addEventListener("click", handleDropdownItemClick)
+            categoryButton.type = "button";
+            categoryButton.value = category.id;
+            categoryButton.dataset.bsToggle = "modal";
+            categoryButton.dataset.bsTarget = "#category-edit-modal";
+            categoryButton.innerText = category.name;
+            categoryButton.onclick = () => populateCategoryModal(category);
+            categoryEditContainerMenu.appendChild(categoryButton);
+     });
+}
 
-        articleChildren.forEach((article) => {
-            const categoryContainerMenuChange = document.getElementById(`${article.id}_menu`)
-            const categoryContainerChange = document.getElementById(`${article.id}_dropdown`)
-            categoryContainerChange.addEventListener("click", handleDropdownChangeClick)
-            categoryContainerMenuChange.innerHTML = buttonHTML
-              //categoryChange.onclick = () => changeCategoryForArticle(obj.category, categoryContainerChange.id)
+const populateSort = (categories) =>  {
+     categorySortContainerMenu.innerHTML = "";
+     categories.push({id: 10000, name: "All categories"})
+     categories.forEach(category => {
+            const categoryButton = document.createElement("button");
+            categoryButton.classList.add("dropdown-item");
+            categoryButton.addEventListener("click", handleDropdownItemClick)
+            categoryButton.type = "button";
+            categoryButton.value = category.id;
+            categoryButton.innerText = category.name;
+            categoryButton.onclick = () => sortArticlesByCategory(category);
+            categorySortContainerMenu.appendChild(categoryButton);
+     });
+}
+
+const populateCategoryArticles = (categories, allArticles) => {
+        articles.childNodes.forEach(article => {
+            const categoryId = article.getAttribute("data-category-id");
+            const categoryChangeMenuLink = document.getElementById(`${article.id}_dropdownCategoryChange`)
+            if (categories.length <= 1) {
+                categoryChangeMenuLink.parentNode.innerHTML = "";
+                return
+            }
+            categories.forEach(category => {
+                if (category.id != categoryId) {
+                    categoryChangeMenuLink.addEventListener("click", handleDropdownClick)
+                    const categoryChangeMenu = document.getElementById(`${article.id}_menu`);
+                    if (categoryChangeMenu) {
+                        const categoryButton = document.createElement("button");
+                        categoryButton.classList.add("dropdown-item");
+                        categoryButton.addEventListener("click", handleDropdownItemClick)
+                        categoryButton.type = "button";
+                        categoryButton.value = category.id;
+                        categoryButton.innerHTML = category.name;
+                        categoryButton.onclick = () => changeCategoryForArticle(article.id, category.id, allArticles);
+                        categoryChangeMenu.appendChild(categoryButton);
+                    }
+                }
+            });
         });
+}
 
-        categories.push(obj.category.name)
-    })
+const populateCategories = (allArticles) => {
+    const categories = Object.values(allArticles.reduce((acc, obj) => ({ ...acc, [obj.category.id]: obj.category }), {}));
+    //populateCategoryMenu(categories);
+    //populateSort(categories);
+    populateCategoryArticles(categories, allArticles);
+}
 
+const switchContextArticle = (index) => {
+  if (!home || !login || !register) return
+   toggleActive("home", home, home_nav, false);
+   toggleActive("login", login, login_nav, false);
+   toggleActive("register", register, register_nav, false);
+
+   switch (index) {
+       case "home":
+           toggleActive("home", home, home_nav, true);
+           break;
+       case "login":
+           toggleActive("login", login, login_nav, true);
+           break;
+       case "register":
+           toggleActive("register", register, register_nav, true);
+           break;
+       default:
+           break;
+   }
 }
 
 const createArticleCards = (array) => {
-    articleContainer.innerHTML = ''
+    articles.innerHTML = ''
     if (!array.length) return
     array.forEach(obj => {
         let articleCard = document.createElement("div")
         articleCard.classList.add("m-0")
         articleCard.id = obj.id;
+        articleCard.setAttribute("data-category-id", obj.category.id)
         articleCard.innerHTML = `
-            <div class="card d-flex" ">
-                <div class="card-body d-flex flex-column  justify-content-between" style="height: available">
-                    <p class="card-text">${obj.body}</p>
-                    <div class="d-flex justify-content-between">
-                        <button class="btn btn-danger" onclick="handleDelete(${obj.id})">Delete</button>
-                        <button onclick="getArticleById(${obj.id})" type="button" class="btn btn-primary"
-                        data-bs-toggle="modal" data-bs-target="#article-edit-modal">
-                        Edit
+            <div class="card d-flex article-card">
+                <ul class="nav flex-column articles-nav">
+                    <li id="delete_nav" class="nav-item">
+                        <button class="nav-link-article active" onclick="handleDeleteArticle(${obj.id})">
+                            <img id="delete" src="media/deleteActive.svg" alt="Delete">
                         </button>
+                    </li>
+                    <li id="edit_nav" class="nav-item">
+                        <button class="nav-link-article active" onclick="getArticleById(${obj.id})"
+                        data-bs-toggle="modal" data-bs-target="#article-edit-modal">
+                            <img id="edit" src="media/editActive.svg" alt="Edit">
+                        </button
+                    </li>
+                </ul>
+                <div class="card-body d-flex flex-column  justify-content-between article-card-body">
+                    <p class="card-text">${obj.body}</p>
+                    <div class="card-footer">
+                        <p class="card-category">${obj.category? obj.category.name : ""}</p>
+                        <div class="drop-down-container">
+                            <div class="dropdown-category-change">
+                                <a class="btn btn-info dropdown-toggle dropdown-container-change" href="#" role="button"
+                                    id="${obj.id}_dropdownCategoryChange"
+                                    data-toggle="dropdown-category-change">
+                                    Change category
+                                </a>
+                                <div
+                                    id="${obj.id}_menu"
+                                    class="dropdown-menu-category-change">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <p class="card-text">${obj.category? obj.category.name : ""}</p>
-                    <div id="${obj.id}_dropdown" class="dropdown-change">
-                        <a class="btn btn-info dropdown-toggle" href="#" role="button"
-                            id="dropdownMenuLinkChange" data-toggle="dropdownchange" aria-haspopup="true"
-                            aria-expanded="false">
-                            Change category
-                        </a>
-                        <div id="${obj.id}_menu" class="dropdown-menu-change" aria-labelledby="dropdownMenuLink" aria-labelledby="dropdownMenuLink">
-                    </div>
+                    <img src="${obj.imageData}" class="card-img"/>
                 </div>
             </div>
         `
-        articleContainer.append(articleCard);
+        articles.append(articleCard);
     })
 }
 function handleLogout(){
@@ -279,15 +358,6 @@ function handleLogout(){
 
 const handleDropdownClick = (e) => {
     e.preventDefault();
-    if (categoryContainerMenu.classList.contains("show")) {
-        categoryContainerMenu.classList.remove("show");
-    } else {
-        categoryContainerMenu.classList.add("show");
-    }
-}
-
-const handleDropdownChangeClick = (e) => {
-    e.preventDefault();
     if (e.target.nextElementSibling?.classList.contains("show")) {
         e.target.nextElementSibling?.classList.remove("show");
     } else {
@@ -295,15 +365,25 @@ const handleDropdownChangeClick = (e) => {
     }
 }
 
-const populateModal = (obj) =>{
-    articleBody.innerText = ''
-    articleBody.innerText = obj.body
+const handleDropdownItemClick = (e) => {
+    e.preventDefault();
+    if (e.target.parentNode?.classList.contains("show")) {
+        e.target.parentNode?.classList.remove("show");
+    } else {
+        e.target.parentNode?.classList.add("show");
+    }
+}
+
+
+const populateArticleModal = (obj) =>{
+    articleBody.value= ''
+    articleBody.value = obj.body
     updateArticleBtn.setAttribute('data-article-id', obj.id)
 }
 
 const populateCategoryModal = (obj) =>{
-    categoryName.innerText = ''
-    categoryName.innerText = obj.name
+    categoryName.value = ''
+    categoryName.value = obj.name
     updateCategoryBtn.setAttribute('data-category-id', obj.id)
     deleteCategoryBtn.setAttribute('data-category-id', obj.id)
 }
@@ -311,17 +391,19 @@ const populateCategoryModal = (obj) =>{
 
 getArticles(userId);
 
-submitForm.addEventListener("submit", handleSubmit)
+submitForm?.addEventListener("submit", handleSubmit)
 
-searchForm.addEventListener("submit", handleSearchSubmit)
-categoryContainer.addEventListener("click", handleDropdownClick)
+searchForm?.addEventListener("submit", handleSearchSubmit)
 
-updateArticleBtn.addEventListener("click", (e)=>{
+categoryEditContainer?.addEventListener("click", handleDropdownClick)
+categorySortContainer?.addEventListener("click", handleDropdownClick)
+
+updateArticleBtn?.addEventListener("click", (e)=>{
     let articleId = e.target.getAttribute('data-article-id')
     handleArticleEdit(articleId);
 })
 
-updateCategoryBtn.addEventListener("click", (e)=>{
+updateCategoryBtn?.addEventListener("click", (e)=>{
     let categoryId = e.target.getAttribute('data-category-id')
     handleCategoryEdit(categoryId);
 })
@@ -330,3 +412,4 @@ deleteCategoryBtn.addEventListener("click", (e)=>{
     let categoryId = e.target.getAttribute('data-category-id')
     handleCategoryDelete(categoryId);
 })
+

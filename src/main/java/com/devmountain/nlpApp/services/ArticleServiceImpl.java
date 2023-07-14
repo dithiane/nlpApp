@@ -9,6 +9,16 @@ import com.devmountain.nlpApp.repositories.ArticleRepository;
 import com.devmountain.nlpApp.repositories.CategoryRepository;
 import com.devmountain.nlpApp.repositories.UserRepository;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.Base64;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +29,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.sql.Date;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -49,7 +60,11 @@ public class ArticleServiceImpl implements ArticleService {
                 articleDto.setId(article.getId());
                 articleDto.setTitle(article.getTitle());
                 articleDto.setBody(article.getBody());
+                articleDto.setCreated(article.getCreated());
+                articleDto.setUpdated(article.getUpdated());
+                articleDto.setUser(article.getUser());
                 articleDto.setCategory(article.getCategory());
+                articleDto.setImageData(article.getImageData());
                 return articleDto;
             });
             return articleListUpdated.collect(Collectors.toList());
@@ -122,8 +137,6 @@ public class ArticleServiceImpl implements ArticleService {
         return null;
     }
 
-    //  The getAllArticlesByBody method retrieves a list of ArticleDto objects based on the provided body and userId.
-    //  It filters the articles based on the body parameter if it is not null and returns the resulting list of ArticleDto objects.
     @Override
     public List<ArticleDto> getAllArticlesByBody(String body, Long userId){
         return userRepository.findById(userId)
@@ -150,6 +163,8 @@ public class ArticleServiceImpl implements ArticleService {
 
         CategoryProperties categoryProperties = getNlpCategory(articleDto.getBody());
         articleDto.setRelevance(categoryProperties.relevance);
+        articleDto.setCreated(java.time.LocalDateTime.now());
+        articleDto.setUpdated(java.time.LocalDateTime.now());
         Article article = new Article(articleDto);
 
         Optional<Category> categoryOptional = categoryRepository.findByName(categoryProperties.label);
@@ -177,7 +192,10 @@ public class ArticleServiceImpl implements ArticleService {
     public void updateArticleById(ArticleDto articleDto) {
         Optional<Article> articleOptional = articleRepository.findById(articleDto.getId());
         articleOptional.ifPresent(article -> {
+            if (articleDto.getBody() != null) article.setBody(articleDto.getBody());
             article.setBody(articleDto.getBody());
+            if (articleDto.getCategory() != null) article.setCategory(articleDto.getCategory());
+            article.setUpdated(java.time.LocalDateTime.now());
             articleRepository.saveAndFlush(article);
         });
     }

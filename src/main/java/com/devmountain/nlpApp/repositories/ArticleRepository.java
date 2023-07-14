@@ -15,7 +15,5 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     List<Article> findAllByBodyEquals(String body);
 
-    Optional<Article> findByCategoryId(Long categoryId);
-
     List<Article> findAllByCategory(Category category);
 }

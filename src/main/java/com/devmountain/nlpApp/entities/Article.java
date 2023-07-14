@@ -4,9 +4,12 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.time.LocalDateTime;
 
 // The Article class is an entity class in the Spring Framework.
 // It represents an article entity that can be stored and retrieved from a database.
@@ -40,8 +43,13 @@ public class Article {
     @Column(columnDefinition = "integer")
     private Integer relevance;
 
-    @Column(columnDefinition = "date")
-    private Date created;
+    @LastModifiedDate
+    @Column(name = "created", nullable = false)
+    private LocalDateTime created;
+
+    @LastModifiedDate
+    @Column(name = "updated")
+    private LocalDateTime updated;
 
     @ManyToOne
     @JsonBackReference(value="user")
@@ -50,6 +58,9 @@ public class Article {
     @ManyToOne
     @JsonBackReference(value="category")
     private Category category;
+
+    @Column(columnDefinition = "text")
+    private String imageData;
 
     public Article(ArticleDto articleDto){
         if (articleDto.getId() != null) {
@@ -69,6 +80,12 @@ public class Article {
         }
         if (articleDto.getCreated() != null) {
             this.created = articleDto.getCreated();
+        }
+        if (articleDto.getUpdated() != null) {
+            this.updated = articleDto.getUpdated();
+        }
+        if (articleDto.getImageData() != null) {
+            this.imageData = articleDto.getImageData();
         }
     }
 

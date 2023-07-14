@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 
 // The ArticleDto class is a data transfer object (DTO) class.
@@ -28,9 +28,11 @@ public class ArticleDto {
     private String body;
     private String link;
     private Integer relevance;
-    private Date created;
+    private LocalDateTime created;
+    private LocalDateTime updated;
     private User user;
     private Category category;
+    private String imageData;
 
     public ArticleDto(Article article) {
         if (article.getId() != null) {
@@ -50,6 +52,12 @@ public class ArticleDto {
         }
         if (article.getCreated() != null) {
             this.created = article.getCreated();
+        }
+        if (article.getUpdated() != null) {
+            this.updated = article.getUpdated();
+        }
+        if (article.getImageData() != null) {
+            this.imageData = article.getImageData();
         }
     }
 }
