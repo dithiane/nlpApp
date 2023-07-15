@@ -71,30 +71,4 @@ public class CategoryServiceImpl implements CategoryService {
         return Optional.empty();
     }
 
-//    @Override
-//    public List<CategoryDto> getAllCategoriesByUserId(Long userId) {
-//        Optional<User> userOptional = userRepository.findById(userId);
-//        if (userOptional.isPresent()){
-//            List<Category> articleList = categoryRepository.findAllByUserEquals(userOptional.get());
-//            Stream<CategoryDto> categoryListUpdated = articleList.stream().map(category -> {
-//                CategoryDto categoryDto = new CategoryDto();
-//                categoryDto.setId(category.getId());
-//                categoryDto.setName(category.getName());
-//                return categoryDto;
-//            });
-//            return categoryListUpdated.collect(Collectors.toList());
-//        }
-//        return Collections.emptyList();    }
-
-//    @Override
-//    public Optional<Category> getCategoryIdByName(String categoryName) {
-//        Optional<Category> category = categoryRepository.getCategoryIdByName(categoryName);
-//        if (category.isEmpty()) {
-//            Category newCategory = new Category();
-//            newCategory.setName(categoryName);
-//            categoryRepository.save(newCategory);
-//            category = categoryRepository.getCategoryIdByName(categoryName);
-//        }
-//        return category;
-//    }
 }

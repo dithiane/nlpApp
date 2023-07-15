@@ -11,6 +11,12 @@
     --DARK-GREY: #676767;
     --BLACK: #000000;
 }
+
+html, body, {
+    height: 100vh;
+    min-height: 100vh;
+}
+
 img {
     width: 2rem;
 }
@@ -36,6 +42,6 @@ img {
 }
 
 .nav {
-    width: 3rem;
-    background-color: var(--DARK-BLUE);
+   max-width: 4rem;
+   background-color: var(--DARK-BLUE);
 }

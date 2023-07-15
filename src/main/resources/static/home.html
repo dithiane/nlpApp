@@ -22,70 +22,73 @@
         <div class="alert alert-danger" role="alert"></div>
     </div>
 </nav>
-<div class="container-app">
+<div class="container-app-home">
     <ul class="nav flex-column">
         <li id="articles_nav" class="nav-item">
             <a class="nav-link active" href="#">
                 <img id="articles" src="media/articlesActive.svg" alt="Articles">
             </a>
         </li>
-        <li id="login_nav" class="nav-item">
+        <li id="add_nav" class="nav-item">
             <a class="nav-link" href="#">
-                <img id="login" src="media/login.svg" alt="Login">
+                <img id="add" src="media/add.svg" alt="Add">
             </a>
         </li>
-        <li id="register_nav" class="nav-item">
+        <li id="categoryedit_nav" class="nav-item">
             <a class="nav-link" href="#">
-                <img id="register" src="media/register.svg" alt="Register">
+                <img id="categoryedit" src="media/categoryedit.svg" alt="Edit category">
+            </a>
+        </li>
+        <li id="logout_nav" class="nav-item">
+            <a class="nav-link" href="#">
+                <img id="logout" src="media/logout.svg" alt="Register">
             </a>
         </li>
     </ul>
-    <section id="main">
-<!--        <div class="tools">-->
-<!--           <div class="dropdown-category-edit">-->
-<!--           <a class="btn btn-secondary dropdown-toggle" href="#" role="button"-->
-<!--              id="dropdownCategoryEdit"-->
-<!--              aria-haspopup="true" aria-expanded="false"-->
-<!--              data-toggle="dropdown-category-edit">-->
-<!--               Edit Categories-->
-<!--           </a>-->
-<!--           <div-->
-<!--             class="dropdown-menu-category-edit"-->
-<!--             aria-labelledby="dropdownCategoryEdit">-->
-<!--           </div>-->
-<!--       </div>-->
-<!--           <form id="search-form" class="d-flex" role="search">-->
-<!--               <input id="search-input" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">-->
-<!--               <button class="btn btn-primary navbar-btn" style="margin: 5px" type="submit">Search</button>-->
-<!--               <a class="btn btn-danger navbar-btn" style="margin: 5px" href="index.html"-->
-<!--                  onclick="handleLogout()">Logout</a>-->
-<!--           </form>-->
-<!--           <form id="article-form">-->
-<!--           <div class="form-group">-->
-<!--               <label for="article-input">-->
-<!--               </label>-->
-<!--               <textarea class="form-control" id="article-input" placeholder="Add your article..." rows="5"></textarea>-->
-<!--           </div>-->
-<!--           <input type="file" class="form-control" id="customFile" accept="image/png, image/jpeg"/>-->
-<!--           <div class="article-buttons">-->
-<!--               <button id="submit-button" type="submit" class="btn btn-primary my-3">Submit</button>-->
-<!--               <div class="dropdown-category-sort">-->
-<!--                   <a class="btn btn-secondary dropdown-toggle" href="#" role="button"-->
-<!--                      id="dropdownCategorySort"-->
-<!--                      data-toggle="dropdown-category-sort">-->
-<!--                       Sort Categories-->
-<!--                   </a>-->
-<!--                   <div-->
-<!--                           class="dropdown-menu-category-sort">-->
-<!--                   </div>-->
-<!--               </div>-->
-<!--           </div>-->
-<!--       </form>-->
-<!--   </div>-->
-        <section class="container">
-            <div id="article-container" class="container-fluid"></div>
-        </section>
-   </section>
+    <section class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="add">
+                <form id="article-form">
+                    <div class="form-group">
+                        <label for="article-input">
+                        </label>
+                        <textarea class="form-control" id="article-input" placeholder="Add your article..." rows="5"></textarea>
+                    </div>
+                    <input type="file" class="form-control" id="custom-file" accept="image/png, image/jpeg"/>
+                    <button id="submit-button" type="submit" class="btn btn-primary my-3">Submit</button>
+                </form>
+<!--                <form id="search-form" class="d-flex" role="search">-->
+<!--                    <input id="search-input" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">-->
+<!--                    <button class="btn btn-primary navbar-btn" style="margin: 5px" type="submit">Search</button>-->
+<!--                    <a class="btn btn-danger navbar-btn" style="margin: 5px" href="index.html"-->
+<!--                       onclick="handleLogout()">Logout</a>-->
+<!--                </form>-->
+            </div>
+            <div class="categoryedit">
+                <div class="dropdown-category-edit">
+                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button"
+                       id="dropdownCategoryEdit"
+                       data-toggle="dropdown-category-edit">
+                        Edit Categories
+                    </a>
+                    <div class="dropdown-menu-category-edit"></div>
+                </div>
+            </div>
+            <div class="articles">
+                <div class="article-buttons">
+                    <div class="dropdown-category-sort">
+                        <a class="btn btn-secondary btn-sort dropdown-toggle" href="#" role="button"
+                           id="dropdownCategorySort"
+                           data-toggle="dropdown-category-sort">
+                            Sort Categories
+                        </a>
+                        <div class="dropdown-menu-category-sort"></div>
+                    </div>
+                </div>
+                <div class="articles-container"></div>
+            </div>
+        </div>
+    </section>
     <!-- Modal -->
    <div class="modal fade" id="article-edit-modal" data-bs-backdrop="static" tabindex="-1"
          aria-labelledby="article-edit-modal-title" aria-hidden="true">
@@ -95,18 +98,20 @@
                     <h5 class="modal-title" id="article-edit-modal-title">Edit your article</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body d-flex">
+                <div class="modal-body d-flex file-control">
                     <label for="article-body"></label><textarea class="form-control" rows="5" id="article-body"></textarea>
+                    <input type="file" class="form-control" id="custom-file-modal" accept="image/png, image/jpeg"/>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" id="update-article-button" class="btn btn-primary" data-bs-dismiss="modal">Save
                     </button>
                 </div>
+                <img class="delete-modal" src="media/deleteActive.svg" alt="Delete">
+                <img class="card-img" src="" />
             </div>
         </div>
     </div>
-
     <!-- Modal -->
     <div class="modal fade" id="category-edit-modal" data-bs-backdrop="static" tabindex="-1"
          aria-labelledby="article-edit-modal-title" aria-hidden="true">

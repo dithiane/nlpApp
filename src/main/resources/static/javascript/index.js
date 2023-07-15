@@ -3,6 +3,7 @@ const loginForm = document.getElementById('login-form')
 const loginUsername = document.getElementById('login-username')
 const loginPassword = document.getElementById('login-password')
 const navItems = document.querySelectorAll('.nav-item')
+
 const home = document.querySelector(".home")
 const home_nav = document.getElementById("home")
 
@@ -12,12 +13,23 @@ const login_nav = document.getElementById("login")
 const register = document.querySelector(".register")
 const register_nav = document.getElementById("register");
 
+const articles = document.querySelector(".articles")
+const articles_container = document.querySelector(".articles-container")
+const articles_nav = document.getElementById("articles")
+
+const add = document.querySelector(".add")
+const add_nav = document.getElementById("add")
+
+const categoryedit = document.querySelector(".categoryedit")
+const categoryedit_nav = document.getElementById("categoryedit")
+
+const logout = document.querySelector(".logout")
+const logout_nav = document.getElementById("logout");
+
+
 const registerForm = document.getElementById('register-form')
 const registerUsername = document.getElementById('register-username')
 const registerPassword = document.getElementById('register-password')
-
-let menu = "home"
-
 
 const headers = {
     'Content-Type':'application/json'
@@ -39,20 +51,35 @@ const toggleActive = (index, element, element_nav, isActive) => {
 };
 
 const switchContext = (index) => {
-  if (!home || !login || !register) return
-   toggleActive("home", home, home_nav, false);
-   toggleActive("login", login, login_nav, false);
-   toggleActive("register", register, register_nav, false);
+   if (home) toggleActive("home", home, home_nav, false);
+   if (login) toggleActive("login", login, login_nav, false);
+   if (register) toggleActive("register", register, register_nav, false);
+   if (articles) toggleActive("articles", articles, articles_nav, false);
+   if (add) toggleActive("add", add, add_nav, false);
+   if (categoryedit) toggleActive("categoryedit", categoryedit, categoryedit_nav, false);
+   if (logout) toggleActive("logout", logout, logout_nav, false);
 
    switch (index) {
        case "home":
-           toggleActive("home", home, home_nav, true);
+            if (home) toggleActive("home", home, home_nav, true);
            break;
        case "login":
-           toggleActive("login", login, login_nav, true);
+           if (login) toggleActive("login", login, login_nav, true);
            break;
        case "register":
-           toggleActive("register", register, register_nav, true);
+           if (register) toggleActive("register", register, register_nav, true);
+           break;
+       case "articles":
+           if (articles) toggleActive("articles", articles, articles_nav, true);
+           break;
+       case "add":
+           if (add) toggleActive("add", add, add_nav, true);
+           break;
+       case "categoryedit":
+           if (categoryedit) toggleActive("categoryedit", categoryedit, categoryedit_nav, true);
+           break;
+       case "logout":
+           if (logout) toggleActive("logout", logout, logout_nav, true);
            break;
        default:
            break;
@@ -130,4 +157,4 @@ navItems.forEach(item => {
     item.addEventListener("click", handleNavItemClick)
 })
 
-switchContext(menu)
+switchContext(home ? "home" : "articles")

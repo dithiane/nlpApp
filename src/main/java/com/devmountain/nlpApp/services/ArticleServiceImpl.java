@@ -196,6 +196,8 @@ public class ArticleServiceImpl implements ArticleService {
             article.setBody(articleDto.getBody());
             if (articleDto.getCategory() != null) article.setCategory(articleDto.getCategory());
             article.setUpdated(java.time.LocalDateTime.now());
+            if (articleDto.getImageData() != null) article.setImageData(articleDto.getImageData());
+            article.setUpdated(java.time.LocalDateTime.now());
             articleRepository.saveAndFlush(article);
         });
     }

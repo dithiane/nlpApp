@@ -3,12 +3,21 @@
 const cookieArr = document.cookie.split("=")
 const userId = cookieArr[1];
 let articleRepository = null;
+let categories = null;
+
 if (!userId) window.location.replace("http://localhost:8080/index.html");
 
 //DOM Elements
+const cardImage = document.querySelector(".card-img")
+const btnImageDelete = document.querySelector(".delete-modal")
+const customFile = document.getElementById("custom-file")
+const customFileModal = document.getElementById("custom-file-modal")
+
+const btnSort = document.querySelector(".btn-sort");
+
 const dropDownMenuItem= document.getElementById(".dropdown-item")
 const submitForm = document.getElementById("article-form")
-const articles = document.getElementById("article-container")
+
 const categoryEditContainer = document.querySelector(".dropdown-category-edit")
 const categoryEditContainerMenu = document.querySelector(".dropdown-menu-category-edit")
 
@@ -42,20 +51,25 @@ const handleSearchSubmit = async (e) => {
      document.getElementById("search-input").value = ''
 }
 
-const handleSubmit = async (e) => {
+const getBase64 = async (target) =>  {
+     let file = document.getElementById(target).files[0]
+        let imageData = ''
+
+        if (file) {
+            try {
+                imageData = await toBase64(file)
+            }
+            catch (err) {
+                console.log(err)
+            }
+        }
+        return imageData
+}
+
+const handleSubmitArticle = async (e) => {
     e.preventDefault()
 
-    let file = document.getElementById("customFile").files[0]
-    let imageData = ''
-
-    if (file) {
-        try {
-            imageData = await toBase64(file)
-        }
-        catch (err) {
-            console.log(err)
-        }
-    }
+    let imageData = await getBase64("custom-file")
 
     let bodyObj = {
                 body: document.getElementById("article-input").value,
@@ -64,9 +78,11 @@ const handleSubmit = async (e) => {
     addArticle(bodyObj)
 
     document.getElementById("article-input").value = ''
+    customFile.value = ''
+    switchContext("articles")
 }
 
-async function addArticle(obj) {
+const addArticle = async (obj) => {
     const response = await fetch(`${articleUrl}user/${userId}`, {
         method: "POST",
         body: JSON.stringify(obj),
@@ -82,11 +98,15 @@ const sortArticles = (data) => {
      return data.sort((a, b) => b.updated.localeCompare(a.updated));
 }
 
-const sortArticlesByCategory = (category) => {
+const sortArticlesByCategory = (categoryId, categoryName) => {
+    target.parentNode.classList.remove("show")
     let sortedArticles = articleRepository
+    const sortedName = document.getElementById("dropdownCategorySort")
+    sortedName.innerText = categoryName
     if (category.name !== "All categories")
         sortedArticles = articleRepository.filter(article => article.category.id === category.id)
-    createArticleCards(sortedArticles)
+    createArticleCards(sortedArticles);
+    populateCategoryArticles(categories);
 }
 
 async function getArticles(userId) {
@@ -98,10 +118,11 @@ async function getArticles(userId) {
         .then(data => {
             articleRepository = sortArticles(data)
             createArticleCards(articleRepository)
-            populateCategories(articleRepository)
+            populateCategories()
         })
         .catch(err => console.error(err))
 }
+
 
 async function getArticlesByBody(body='') {
     await fetch(`${articleUrl}user/body/${userId}`, {
@@ -135,18 +156,21 @@ async function getArticleById(articleId){
 }
 
 async function handleArticleEdit(articleId){
+
+    let imageData = await getBase64("custom-file-modal")
     let bodyObj = {
         id: articleId,
-        body: articleBody.value
+        body: articleBody.value,
+        imageData : imageData
     }
 
-    await fetch(baseUrl, {
+    await fetch(articleUrl, {
         method: "PUT",
         body: JSON.stringify(bodyObj),
         headers: headers
     })
         .catch(err => console.error(err))
-
+    document.getElementById("custom-file-modal").value = ''
     return getArticles(userId);
 }
 
@@ -182,9 +206,9 @@ async function handleCategoryDelete(categoryId){
     return getArticles(userId);
 }
 
-async function changeCategoryForArticle(articleId, categoryId, allArticles){
-    const articleToChange = allArticles.find(article => article.id == articleId);
-    articleToChange.category.id = categoryId;
+async function changeCategoryForArticle(articleId, category){
+    const articleToChange = articleRepository.find(article => article.id == articleId);
+    articleToChange.category = category;
     let bodyObj = {
         id : articleToChange.id,
         title : articleToChange.title,
@@ -196,7 +220,7 @@ async function changeCategoryForArticle(articleId, categoryId, allArticles){
         category: articleToChange.category
     }
 
-     await fetch(baseUrl, {
+     await fetch(articleUrl, {
             method: "PUT",
             body: JSON.stringify(bodyObj),
             headers: headers
@@ -235,19 +259,19 @@ const populateSort = (categories) =>  {
      categorySortContainerMenu.innerHTML = "";
      categories.push({id: 10000, name: "All categories"})
      categories.forEach(category => {
-            const categoryButton = document.createElement("button");
+            let categoryButton = document.createElement("button");
             categoryButton.classList.add("dropdown-item");
-            categoryButton.addEventListener("click", handleDropdownItemClick)
             categoryButton.type = "button";
             categoryButton.value = category.id;
             categoryButton.innerText = category.name;
-            categoryButton.onclick = () => sortArticlesByCategory(category);
+//             categoryButton.addEventListener("click", handleDropdownItemClick)
+            categoryButton.onclick = () => sortArticlesByCategory(categoryButton.value, categoryButton.innerText);
             categorySortContainerMenu.appendChild(categoryButton);
      });
 }
 
-const populateCategoryArticles = (categories, allArticles) => {
-        articles.childNodes.forEach(article => {
+const populateCategoryArticles = (categories) => {
+        articles_container.childNodes.forEach(article => {
             const categoryId = article.getAttribute("data-category-id");
             const categoryChangeMenuLink = document.getElementById(`${article.id}_dropdownCategoryChange`)
             if (categories.length <= 1) {
@@ -265,7 +289,7 @@ const populateCategoryArticles = (categories, allArticles) => {
                         categoryButton.type = "button";
                         categoryButton.value = category.id;
                         categoryButton.innerHTML = category.name;
-                        categoryButton.onclick = () => changeCategoryForArticle(article.id, category.id, allArticles);
+                        categoryButton.onclick = () => changeCategoryForArticle(article.id, category);
                         categoryChangeMenu.appendChild(categoryButton);
                     }
                 }
@@ -273,36 +297,16 @@ const populateCategoryArticles = (categories, allArticles) => {
         });
 }
 
-const populateCategories = (allArticles) => {
-    const categories = Object.values(allArticles.reduce((acc, obj) => ({ ...acc, [obj.category.id]: obj.category }), {}));
-    //populateCategoryMenu(categories);
-    //populateSort(categories);
-    populateCategoryArticles(categories, allArticles);
-}
+const populateCategories = () => {
+    categories = Object.values(articleRepository.reduce((acc, obj) => ({ ...acc, [obj.category.id]: obj.category }), {}));
 
-const switchContextArticle = (index) => {
-  if (!home || !login || !register) return
-   toggleActive("home", home, home_nav, false);
-   toggleActive("login", login, login_nav, false);
-   toggleActive("register", register, register_nav, false);
-
-   switch (index) {
-       case "home":
-           toggleActive("home", home, home_nav, true);
-           break;
-       case "login":
-           toggleActive("login", login, login_nav, true);
-           break;
-       case "register":
-           toggleActive("register", register, register_nav, true);
-           break;
-       default:
-           break;
-   }
+    populateCategoryMenu(categories);
+    populateSort(categories);
+    populateCategoryArticles(categories);
 }
 
 const createArticleCards = (array) => {
-    articles.innerHTML = ''
+    articles_container.innerHTML = ''
     if (!array.length) return
     array.forEach(obj => {
         let articleCard = document.createElement("div")
@@ -346,14 +350,16 @@ const createArticleCards = (array) => {
                 </div>
             </div>
         `
-        articles.append(articleCard);
+        articles_container.append(articleCard);
     })
 }
-function handleLogout(){
+function handleLogout(e){
+    e.preventDefault
     let c = document.cookie.split(";");
     for(let i in c){
         document.cookie = /^[^=]+/.exec(c[i])[0]+"=;expires=Thu, 01 Jan 1970 00:00:00 GMT"
     }
+    window.location.replace("http://localhost:8080/index.html");
 }
 
 const handleDropdownClick = (e) => {
@@ -378,6 +384,8 @@ const handleDropdownItemClick = (e) => {
 const populateArticleModal = (obj) =>{
     articleBody.value= ''
     articleBody.value = obj.body
+    cardImage.setAttribute("src", obj.imageData)
+    if (cardImage.getAttribute("src")) btnImageDelete.style.display = 'block'
     updateArticleBtn.setAttribute('data-article-id', obj.id)
 }
 
@@ -388,10 +396,28 @@ const populateCategoryModal = (obj) =>{
     deleteCategoryBtn.setAttribute('data-category-id', obj.id)
 }
 
+const handleDeleteImage = (e) =>{
+    e.preventDefault()
+    cardImage.setAttribute("src", "")
+    customFileModal.value = ""
+    btnImageDelete.style.display = 'none'
+}
+
+const handleLoadFile = async (e) => {
+    e.preventDefault()
+    let imageData = await getBase64("custom-file-modal")
+    cardImage.setAttribute("src", imageData)
+    btnImageDelete.style.display = 'block'
+}
+
+const handleClickSort = (e) => {
+    e.preventDefault()
+    btnSort.innerText = "Sort Categories";
+}
 
 getArticles(userId);
 
-submitForm?.addEventListener("submit", handleSubmit)
+submitForm?.addEventListener("submit", handleSubmitArticle)
 
 searchForm?.addEventListener("submit", handleSearchSubmit)
 
@@ -413,3 +439,10 @@ deleteCategoryBtn.addEventListener("click", (e)=>{
     handleCategoryDelete(categoryId);
 })
 
+logout_nav.addEventListener("click", handleLogout)
+
+btnImageDelete.addEventListener("click", handleDeleteImage)
+
+customFileModal.addEventListener("change", handleLoadFile)
+
+btnSort.addEventListener("click", handleClickSort)

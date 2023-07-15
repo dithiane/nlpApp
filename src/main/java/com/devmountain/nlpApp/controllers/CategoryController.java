@@ -19,6 +19,7 @@ import java.util.Optional;
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;
+
     @GetMapping("/category/{categoryId}")
     public Optional<CategoryDto> getCategoryById(@PathVariable Long categoryId){
         return categoryService.getCategoryById(categoryId);
