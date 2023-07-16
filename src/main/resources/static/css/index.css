@@ -103,7 +103,6 @@ section {
 }
 
 .btn-sort {
-    width: 100%;
     background: var(--DARK-GREY);
 }
 
@@ -113,8 +112,4 @@ section {
 
 .modal-footer {
     justify-content: center;
-}
-
-.btn-secondary:hover {
-    width: fit-content;
 }

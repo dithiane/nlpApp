@@ -26,7 +26,6 @@ const categorySortContainerMenu = document.querySelector(".dropdown-menu-categor
 
 const alertBox = document.querySelector(".alert");
 const searchForm = document.getElementById("search-form")
-//const searchContainer = document.getElementById("search-container")
 
 //Modal Elements
 let articleBody = document.getElementById("article-body")
@@ -98,13 +97,10 @@ const sortArticles = (data) => {
      return data.sort((a, b) => b.updated.localeCompare(a.updated));
 }
 
-const sortArticlesByCategory = (categoryId, categoryName) => {
-    target.parentNode.classList.remove("show")
+const sortArticlesByCategory = (id, name) => {
     let sortedArticles = articleRepository
-    const sortedName = document.getElementById("dropdownCategorySort")
-    sortedName.innerText = categoryName
-    if (category.name !== "All categories")
-        sortedArticles = articleRepository.filter(article => article.category.id === category.id)
+    if ( name !== "All categories")
+        sortedArticles = articleRepository.filter(article => article.category.id == id)
     createArticleCards(sortedArticles);
     populateCategoryArticles(categories);
 }
@@ -131,7 +127,7 @@ async function getArticlesByBody(body='') {
         headers: headers
     })
         .then(response => response.json())
-        .then(data => createArticleCards(data))
+        .then(data => createArticleCards(data, true))
         .catch(err => console.error(err))
 }
 
@@ -206,7 +202,7 @@ async function handleCategoryDelete(categoryId){
     return getArticles(userId);
 }
 
-async function changeCategoryForArticle(articleId, category){
+async function changeCategoryForArticle(articleId, category,target){
     const articleToChange = articleRepository.find(article => article.id == articleId);
     articleToChange.category = category;
     let bodyObj = {
@@ -246,8 +242,8 @@ const populateCategoryMenu = (categories) =>  {
             categoryButton.classList.add("dropdown-item");
             categoryButton.addEventListener("click", handleDropdownItemClick)
             categoryButton.type = "button";
-            categoryButton.value = category.id;
             categoryButton.dataset.bsToggle = "modal";
+            categoryButton.value = category.id;
             categoryButton.dataset.bsTarget = "#category-edit-modal";
             categoryButton.innerText = category.name;
             categoryButton.onclick = () => populateCategoryModal(category);
@@ -257,15 +253,18 @@ const populateCategoryMenu = (categories) =>  {
 
 const populateSort = (categories) =>  {
      categorySortContainerMenu.innerHTML = "";
-     categories.push({id: 10000, name: "All categories"})
-     categories.forEach(category => {
+     const categoryTypes = categories.slice(0);
+     categoryTypes.push({id: 10000, name: "All categories"})
+     const categoryChangeMenuLink = document.getElementById(`dropdownCategorySort`)
+     categoryTypes.forEach(category => {
             let categoryButton = document.createElement("button");
             categoryButton.classList.add("dropdown-item");
+            categoryButton.addEventListener("click", handleDropdownItemClick)
             categoryButton.type = "button";
             categoryButton.value = category.id;
+            categoryButton.id = category.id;
             categoryButton.innerText = category.name;
-//             categoryButton.addEventListener("click", handleDropdownItemClick)
-            categoryButton.onclick = () => sortArticlesByCategory(categoryButton.value, categoryButton.innerText);
+            categoryButton.onclick = () => sortArticlesByCategory(category.id, category.name);
             categorySortContainerMenu.appendChild(categoryButton);
      });
 }
@@ -274,13 +273,13 @@ const populateCategoryArticles = (categories) => {
         articles_container.childNodes.forEach(article => {
             const categoryId = article.getAttribute("data-category-id");
             const categoryChangeMenuLink = document.getElementById(`${article.id}_dropdownCategoryChange`)
+            categoryChangeMenuLink.addEventListener("click", handleDropdownClick)
             if (categories.length <= 1) {
                 categoryChangeMenuLink.parentNode.innerHTML = "";
                 return
             }
             categories.forEach(category => {
                 if (category.id != categoryId) {
-                    categoryChangeMenuLink.addEventListener("click", handleDropdownClick)
                     const categoryChangeMenu = document.getElementById(`${article.id}_menu`);
                     if (categoryChangeMenu) {
                         const categoryButton = document.createElement("button");
@@ -305,8 +304,8 @@ const populateCategories = () => {
     populateCategoryArticles(categories);
 }
 
-const createArticleCards = (array) => {
-    articles_container.innerHTML = ''
+const createArticleCards = (array, search=false) => {
+    search ? articles_container_search.innerHTML = '' : articles_container.innerHTML = '';
     if (!array.length) return
     array.forEach(obj => {
         let articleCard = document.createElement("div")
@@ -350,7 +349,7 @@ const createArticleCards = (array) => {
                 </div>
             </div>
         `
-        articles_container.append(articleCard);
+        search ? articles_container_search.appendChild(articleCard) : articles_container.append(articleCard);
     })
 }
 function handleLogout(e){
@@ -379,7 +378,6 @@ const handleDropdownItemClick = (e) => {
         e.target.parentNode?.classList.add("show");
     }
 }
-
 
 const populateArticleModal = (obj) =>{
     articleBody.value= ''

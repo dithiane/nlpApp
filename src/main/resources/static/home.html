@@ -39,6 +39,11 @@
                 <img id="categoryedit" src="media/categoryedit.svg" alt="Edit category">
             </a>
         </li>
+        <li id="search_nav" class="nav-item">
+            <a class="nav-link" href="#">
+                <img id="search" src="media/search.svg" alt="Search category">
+            </a>
+        </li>
         <li id="logout_nav" class="nav-item">
             <a class="nav-link" href="#">
                 <img id="logout" src="media/logout.svg" alt="Register">
@@ -57,12 +62,6 @@
                     <input type="file" class="form-control" id="custom-file" accept="image/png, image/jpeg"/>
                     <button id="submit-button" type="submit" class="btn btn-primary my-3">Submit</button>
                 </form>
-<!--                <form id="search-form" class="d-flex" role="search">-->
-<!--                    <input id="search-input" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">-->
-<!--                    <button class="btn btn-primary navbar-btn" style="margin: 5px" type="submit">Search</button>-->
-<!--                    <a class="btn btn-danger navbar-btn" style="margin: 5px" href="index.html"-->
-<!--                       onclick="handleLogout()">Logout</a>-->
-<!--                </form>-->
             </div>
             <div class="categoryedit">
                 <div class="dropdown-category-edit">
@@ -73,6 +72,13 @@
                     </a>
                     <div class="dropdown-menu-category-edit"></div>
                 </div>
+            </div>
+            <div class="search">
+              <form id="search-form" class="d-flex" role="search">
+                <input id="search-input" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-primary navbar-btn" style="margin: 5px" type="submit">Search</button>
+             </form>
+                <div class="articles-container-search"></div>
             </div>
             <div class="articles">
                 <div class="article-buttons">

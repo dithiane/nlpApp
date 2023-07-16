@@ -13,15 +13,14 @@
 }
 
 .article-buttons {
-  display: flex;
-  justify-content: end;
-  position: absolute;
-  top: 8rem;
-  right: 4rem;
+      display: flex;
+      justify-content: end;
+      position: absolute;
+      top: 8rem;
+      right: 4rem;
 }
 
 .dropdown-item {
-    padding: 12px;
     font-style: italic;
 }
 
@@ -63,7 +62,7 @@
 
 .dropdown-menu-category-sort.show{
     display: flex;
-    top: 2.5rem;
+    top: 0.5rem;
     position: relative;
     left: 9.8rem;
 }
@@ -89,6 +88,7 @@
 .articles,
 .add,
 .categoryedit,
+.search,
 .logout{
     display: none;
 }
@@ -97,6 +97,7 @@
 .articles-container,
 .add.active,
 .categoryedit.active,
+.search.active,
 .logout.active{
     display: flex;
     flex-direction: column;

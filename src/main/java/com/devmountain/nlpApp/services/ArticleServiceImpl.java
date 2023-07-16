@@ -145,8 +145,14 @@ public class ArticleServiceImpl implements ArticleService {
                     if (body != null) {
                         return articleList.stream()
                                 .filter(article -> article.getBody().contains(body))
-                                .map(ArticleDto::new)
+                                .map(article -> {
+                                    ArticleDto detectedArticle = new ArticleDto(article);
+                                    detectedArticle.setCategory(article.getCategory());
+                                    detectedArticle.setUser(article.getUser());
+                                    return detectedArticle;
+                                })
                                 .collect(Collectors.toList());
+
                     } else {
                         return articleList.stream()
                                 .map(ArticleDto::new)

@@ -15,10 +15,14 @@ const register_nav = document.getElementById("register");
 
 const articles = document.querySelector(".articles")
 const articles_container = document.querySelector(".articles-container")
+const articles_container_search = document.querySelector(".articles-container-search")
 const articles_nav = document.getElementById("articles")
 
 const add = document.querySelector(".add")
 const add_nav = document.getElementById("add")
+
+const search = document.querySelector(".search")
+const search_nav = document.getElementById("search")
 
 const categoryedit = document.querySelector(".categoryedit")
 const categoryedit_nav = document.getElementById("categoryedit")
@@ -57,6 +61,7 @@ const switchContext = (index) => {
    if (articles) toggleActive("articles", articles, articles_nav, false);
    if (add) toggleActive("add", add, add_nav, false);
    if (categoryedit) toggleActive("categoryedit", categoryedit, categoryedit_nav, false);
+   if (search) toggleActive("search", search, search_nav, false);
    if (logout) toggleActive("logout", logout, logout_nav, false);
 
    switch (index) {
@@ -78,6 +83,9 @@ const switchContext = (index) => {
        case "categoryedit":
            if (categoryedit) toggleActive("categoryedit", categoryedit, categoryedit_nav, true);
            break;
+      case "search":
+          if (search) toggleActive("search", search, search_nav, true);
+          break;
        case "logout":
            if (logout) toggleActive("logout", logout, logout_nav, true);
            break;
