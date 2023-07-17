@@ -87,7 +87,8 @@ const addArticle = async (obj) => {
         body: JSON.stringify(obj),
         headers: headers
     })
-        .catch(err => console.error(err.message))
+    .catch(err => console.error(err.message))
+
     if (response.status == 200) {
         return getArticles(userId);
     }
@@ -110,13 +111,13 @@ async function getArticles(userId) {
         method: "GET",
         headers: headers
     })
-        .then(response => response.json())
-        .then(data => {
-            articleRepository = sortArticles(data)
-            createArticleCards(articleRepository)
-            populateCategories()
-        })
-        .catch(err => console.error(err))
+    .then(response => response.json())
+    .then(data => {
+        articleRepository = sortArticles(data)
+        createArticleCards(articleRepository)
+        populateCategories()
+    })
+    .catch(err => console.error(err))
 }
 
 
@@ -126,9 +127,9 @@ async function getArticlesByBody(body='') {
         body: body,
         headers: headers
     })
-        .then(response => response.json())
-        .then(data => createArticleCards(data, true))
-        .catch(err => console.error(err))
+    .then(response => response.json())
+    .then(data => createArticleCards(data, true))
+    .catch(err => console.error(err))
 }
 
 async function handleDeleteArticle(articleId){
@@ -146,9 +147,9 @@ async function getArticleById(articleId){
         method: "GET",
         headers: headers
     })
-        .then(res => res.json())
-        .then(data => populateArticleModal(data))
-        .catch(err => console.error(err.message))
+    .then(res => res.json())
+    .then(data => populateArticleModal(data))
+    .catch(err => console.error(err.message))
 }
 
 async function handleArticleEdit(articleId){
@@ -165,7 +166,8 @@ async function handleArticleEdit(articleId){
         body: JSON.stringify(bodyObj),
         headers: headers
     })
-        .catch(err => console.error(err))
+    .catch(err => console.error(err))
+
     document.getElementById("custom-file-modal").value = ''
     return getArticles(userId);
 }
@@ -220,8 +222,8 @@ async function changeCategoryForArticle(articleId, category,target){
             method: "PUT",
             body: JSON.stringify(bodyObj),
             headers: headers
-        })
-        .catch(err => console.error(err))
+     })
+     .catch(err => console.error(err))
 
      return getArticles(userId);
 }

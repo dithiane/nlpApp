@@ -84,6 +84,7 @@ section {
   background-repeat: no-repeat;
   background-position: 84% 133px;
   background-size: contain;
+  min-height: 100vh;
 }
 
 .login,
@@ -113,7 +114,6 @@ section {
     min-width: 100px;
     background: var(--DARK-BLUE);
     border-radius: 1rem;
-    width: 10rem;
 }
 
 .btn-secondary {

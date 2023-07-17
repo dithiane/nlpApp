@@ -24,8 +24,6 @@ public class UserController {
         return userService.addUser(userDto);
     }
 
-    // This annotation maps the HTTP POST requests with the URL pattern /api/v1/users/login to the userLogin() method.
-    // It performs user login by accepting a UserDto object in the request body and returns a list of strings.
     @PostMapping("/login")
     public List<String> userLogin(@RequestBody UserDto userDto){
         return userService.userLogin(userDto);

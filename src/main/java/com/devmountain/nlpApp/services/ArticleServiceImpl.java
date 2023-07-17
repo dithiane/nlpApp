@@ -16,9 +16,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.Base64;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -26,11 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
-import java.sql.Date;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -56,6 +49,7 @@ public class ArticleServiceImpl implements ArticleService {
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isPresent()){
             List<Article> articleList = articleRepository.findAllByUserEquals(userOptional.get());
+//            return articleList.stream().map(ArticleDto::new).collect(Collectors.toList());
             Stream <ArticleDto> articleListUpdated = articleList.stream().map(article -> {
                 ArticleDto articleDto = new ArticleDto();
                 articleDto.setId(article.getId());

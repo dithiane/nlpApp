@@ -9,18 +9,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-
-// The ArticleDto class is a data transfer object (DTO) class.
-// It is used to transfer data related to a article between different layers of an application,
-// such as between the controller and service layers or between the service and data access layers
-
-// @Data annotation is provided by the Lombok library and is used to automatically generate
-// getter and setter methods, toString(), equals(), and hashCode() methods, and other boilerplate code.
 @Data
-// @AllArgsConstructor annotation is provided by Lombok and generates a constructor with parameters
-// for all fields in the class.
 @AllArgsConstructor
-// This annotation is provided by Lombok and generates a no-argument constructor for the class.
 @NoArgsConstructor
 public class ArticleDto {
     private Long id;

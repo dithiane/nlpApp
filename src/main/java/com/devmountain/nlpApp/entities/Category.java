@@ -11,20 +11,12 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-// The Category class is an entity class in the Spring Framework.
-// It represents an article entity that can be stored and retrieved from a database.
+import static javax.persistence.CascadeType.ALL;
 
-// @Entity annotation is used to indicate that the class is an entity and should be mapped to a database table.
 @Entity
-// @Table(name = "Users"): This annotation specifies the name of the database table to which the entity is mapped.
 @Table(name = "Categories")
-// @Data annotation is provided by the Lombok library and is used to automatically generate getter and setter methods,
-// toString(), equals(), and hashCode() methods, and other boilerplate code.
 @Data
-// @AllArgsConstructor annotation is provided by Lombok and generates a constructor with parameters
-// for all fields in the class.
 @NoArgsConstructor
-// This annotation is provided by Lombok and generates a no-argument constructor for the class.
 @AllArgsConstructor
 public class Category {
     @Id
@@ -34,9 +26,10 @@ public class Category {
     @Column(unique = true)
     private String name;
 
-//    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-//    @JsonManagedReference(value="category")
-//    private Set<Article> articleSet = new HashSet<>();
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @JsonManagedReference(value="category")
+    private Set<Article> articles;
+
 
     public Category(CategoryDto categoryDto){
         if (categoryDto.getId() != null){

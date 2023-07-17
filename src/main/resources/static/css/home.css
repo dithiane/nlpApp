@@ -199,6 +199,11 @@
     display: none;
 }
 
+.add-form {
+    width: 58%;
+    margin-left: 12rem;
+}
+
 @media (max-width: 768px) {
     .dropdown-category-change {
        top: 0rem;

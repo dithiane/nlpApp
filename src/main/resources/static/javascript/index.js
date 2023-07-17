@@ -30,7 +30,6 @@ const categoryedit_nav = document.getElementById("categoryedit")
 const logout = document.querySelector(".logout")
 const logout_nav = document.getElementById("logout");
 
-
 const registerForm = document.getElementById('register-form')
 const registerUsername = document.getElementById('register-username')
 const registerPassword = document.getElementById('register-password')
@@ -121,7 +120,7 @@ const handleSubmitLogin = async (e) =>{
         body: JSON.stringify(bodyObj),
         headers: headers
     })
-        .catch(err => console.error(err.message))
+    .catch(err => console.error(err.message))
 
     const responseArr = await response.json()
 
@@ -143,7 +142,7 @@ const handleSubmitRegistration = async (e) =>{
         password: registerPassword.value
     }
 
-    const response = await fetch(`${userUrl}/register`, {
+    const response = await fetch(`${userUrl}register`, {
         method: "POST",
         body: JSON.stringify(bodyObj),
         headers: headers
@@ -153,8 +152,7 @@ const handleSubmitRegistration = async (e) =>{
     const responseArr = await response.json()
 
     if (response.status === 200){
-        window.location.replace(responseArr[0])
-        makeNotActiveLeft(responseArr[1])
+        switchContext("login")
     }
 }
 
