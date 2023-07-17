@@ -1,4 +1,5 @@
 package com.devmountain.nlpApp.services;
+import io.github.cdimascio.dotenv.Dotenv;
 
 import com.devmountain.nlpApp.dtos.ArticleDto;
 import com.devmountain.nlpApp.dtos.CategoryDto;
@@ -75,6 +76,9 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public CategoryProperties getNlpCategory(String body) {
         CategoryProperties categoryProperties = new CategoryProperties();
+        Dotenv dotenv = Dotenv.load();
+        String apiKey = dotenv.get("API_KEY");
+        System.out.println("API Key: " + apiKey);
         try {
             // Create the URL object with the endpoint URL
             URL url = new URL("https://api.meaningcloud.com/class-2.0");
@@ -93,7 +97,7 @@ public class ArticleServiceImpl implements ArticleService {
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
             // Create the request parameters
-            String params = "key=a9d53d71789ba56da286b62b244cd877"+
+            String params = "key=" + apiKey +
                             "&model=IPTC_en"+
                             "&txt=" + URLEncoder.encode(body, "UTF-8");
 
