@@ -1,4 +1,4 @@
-# NlpApp
+# Nlp Article Library
 
 NLP Article Library application, a powerful software tool that uses natural language processing algorithms to analyze articles and provide automated article classification.
 # Technologies Used
