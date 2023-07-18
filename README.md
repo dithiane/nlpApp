@@ -4,6 +4,8 @@ NLP Article Library application, a powerful software tool that uses natural lang
 # Technologies Used
 
 * Java
+* Javascript
+* HTML
 * Maven
 * Spring Boot
 * Hibernate
