@@ -8,7 +8,7 @@ let categories = null;
 if (!userId) window.location.replace("http://localhost:8080/index.html");
 
 //DOM Elements
-const cardImage = document.querySelector(".card-img")
+const cardImage = document.querySelector(".img-modal")
 const btnImageDelete = document.querySelector(".delete-modal")
 const customFile = document.getElementById("custom-file")
 const customFileModal = document.getElementById("custom-file-modal")
@@ -37,63 +37,72 @@ let updateArticleBtn = document.getElementById("update-article-button")
 let updateCategoryBtn = document.getElementById("update-category-button")
 let deleteCategoryBtn = document.getElementById("delete-category-button")
 
-const toBase64 = file => new Promise((resolve, reject) => {
+const toBase64 = async (file) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-});
-
+    await new Promise((resolve) => reader.onload = resolve);
+    return reader.result;
+};
 
 const handleSearchSubmit = async (e) => {
-     e.preventDefault()
-     let body = document.getElementById("search-input").value.trim().toLowerCase();
-     getArticlesByBody(body)
+    e.preventDefault();
+    const body = document.getElementById("search-input").value.trim().toLowerCase();
+    await getArticlesByBody(body);
+    document.getElementById("search-input").value = '';
+};
 
-     document.getElementById("search-input").value = ''
-}
+const getBase64 = async (target) => {
+    const file = document.getElementById(target).files[0];
+    let imageData = '';
 
-const getBase64 = async (target) =>  {
-     let file = document.getElementById(target).files[0]
-        let imageData = ''
-
-        if (file) {
-            try {
-                imageData = await toBase64(file)
-            }
-            catch (err) {
-                console.log(err)
-            }
+    if (file) {
+        try {
+            imageData = await toBase64(file);
+        } catch (err) {
+            console.log(err);
         }
-        return imageData
+    }
+
+    return imageData;
 }
 
 const handleSubmitArticle = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    let imageData = await getBase64("custom-file")
+    const imageData = await getBase64("custom-file");
 
-    let bodyObj = {
-                body: document.getElementById("article-input").value,
-                imageData : imageData
-    }
-    addArticle(bodyObj)
+    const bodyObj = {
+        body: document.getElementById("article-input").value,
+        imageData,
+    };
 
-    document.getElementById("article-input").value = ''
-    customFile.value = ''
-    switchContext("articles")
-}
+    addArticle(bodyObj);
+
+    resetForm();
+
+    switchContext("articles");
+};
+
+const resetForm = () => {
+    document.getElementById("article-input").value = "";
+    document.getElementById("custom-file").value = "";
+};
 
 const addArticle = async (obj) => {
-    const response = await fetch(`${articleUrl}user/${userId}`, {
-        method: "POST",
-        body: JSON.stringify(obj),
-        headers: headers
-    })
-    .catch(err => console.error(err.message))
+    try {
+        const response = await fetch(`${articleUrl}user/${userId}`, {
+            method: "POST",
+            body: JSON.stringify(obj),
+            headers,
+        });
 
-    if (response.status == 200) {
-        return getArticles(userId);
+        if (response.ok) {
+            return getArticles(userId);
+        } else {
+            throw new Error("Failed to add article");
+        }
+    } catch (err) {
+        console.error(err.message);
     }
 }
 
@@ -103,148 +112,188 @@ const sortArticles = (data) => {
 
 const sortArticlesByCategory = (id, name) => {
     let sortedArticles = articleRepository
-    if ( name !== "All categories")
-        sortedArticles = articleRepository.filter(article => article.category.id == id)
+    if (name !== "All categories") sortedArticles = articleRepository.filter(article => article.category.id == id)
     createArticleCards(sortedArticles);
     populateCategoryArticles(categories);
 }
 
-async function getArticles(userId) {
-    await fetch(`${articleUrl}user/${userId}`, {
-        method: "GET",
-        headers: headers
-    })
-    .then(response => response.json())
-    .then(data => {
-        articleRepository = sortArticles(data)
-        createArticleCards(articleRepository)
-        populateCategories()
-    })
-    .catch(err => console.error(err))
+const getArticles = async (userId) => {
+    try {
+        const response = await fetch(`${articleUrl}user/${userId}`, {
+            method: "GET",
+            headers,
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            articleRepository = sortArticles(data);
+            createArticleCards(articleRepository);
+            populateCategories();
+        } else {
+            throw new Error("Failed to retrieve articles");
+        }
+    } catch (err) {
+        console.error(err);
+    }
 }
 
+const getArticlesByBody = async (body = '') => {
+    try {
+        const response = await fetch(`${articleUrl}user/body/${userId}`, {
+            method: "POST",
+            body,
+            headers,
+        });
 
-async function getArticlesByBody(body='') {
-    await fetch(`${articleUrl}user/body/${userId}`, {
-        method: "POST",
-        body: body,
-        headers: headers
-    })
-    .then(response => response.json())
-    .then(data => {
-        createArticleCards(data, true)
-        populateCategoryArticles(categories);
-    })
-    .catch(err => console.error(err))
+        if (response.ok) {
+            const data = await response.json();
+            createArticleCards(data, true);
+            populateCategoryArticles(categories);
+        } else {
+            throw new Error("Failed to retrieve articles by body");
+        }
+    } catch (err) {
+        console.error(err);
+    }
 }
 
-async function handleDeleteArticle(articleId){
-    await fetch(articleUrl + articleId, {
-        method: "DELETE",
-        headers: headers
-    })
-    .catch(err => console.error(err))
+const handleDeleteArticle = async (articleId) => {
+    try {
+        await fetch(articleUrl + articleId, {
+            method: "DELETE",
+            headers,
+        });
 
-    return getArticles(userId);
+        return getArticles(userId);
+    } catch (err) {
+        console.error(err);
+    }
 }
 
-async function getArticleById(articleId){
-   await fetch(articleUrl+ articleId, {
-        method: "GET",
-        headers: headers
-    })
-    .then(res => res.json())
-    .then(data => populateArticleModal(data))
-    .catch(err => console.error(err.message))
+const getArticleById = async (articleId) => {
+    try {
+        const response = await fetch(articleUrl + articleId, {
+            method: "GET",
+            headers,
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            populateArticleModal(data);
+        } else {
+            throw new Error("Failed to retrieve article by ID");
+        }
+    } catch (err) {
+        console.error(err.message);
+    }
 }
 
-async function handleArticleEdit(articleId){
+const handleArticleEdit = async (articleId) => {
+    try {
+        const image = document.querySelector(".img-modal")
+        const image64 = await getBase64("custom-file-modal");
+        const imageData = image64 ? image64 : image.getAttribute("src")
+        const bodyObj = {
+            id: articleId,
+            body: articleBody.value,
+            imageData,
+        };
 
-    let imageData = await getBase64("custom-file-modal")
-    let bodyObj = {
-        id: articleId,
-        body: articleBody.value,
-        imageData : imageData
+        await fetch(articleUrl, {
+            method: "PUT",
+            body: JSON.stringify(bodyObj),
+            headers,
+        });
+
+        document.getElementById("custom-file-modal").value = "";
+        switchContext("articles");
+
+        return getArticles(userId);
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+const handleCategoryEdit = async (category) => {
+    if (!category) return;
+
+    try {
+        const bodyObj = {
+            id: category,
+            name: categoryName.value,
+        };
+
+        await fetch(categoryUrl, {
+            method: "PUT",
+            body: JSON.stringify(bodyObj),
+            headers,
+        });
+
+        categoryEditContainer.classList.add("show");
+        return getArticles(userId);
+    } catch (err) {
+        console.error(err);
+    }
+};
+
+const handleCategoryDelete = async (categoryId) => {
+    try {
+        const response = await fetch(categoryUrl + categoryId, {
+            method: "DELETE",
+            headers,
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data) {
+                populateAlert(data);
+            }
+        } else {
+            throw new Error("Failed to delete category");
+        }
+    } catch (err) {
+        console.error(err);
     }
 
-    await fetch(articleUrl, {
-        method: "PUT",
-        body: JSON.stringify(bodyObj),
-        headers: headers
-    })
-    .catch(err => console.error(err))
-
-    document.getElementById("custom-file-modal").value = ''
-    switchContext("articles");
     return getArticles(userId);
-}
+};
 
-async function handleCategoryEdit(category){
-    if (!category) return
-    let bodyObj = {
-        id: category,
-        name: categoryName.value
-    }
-
-    await fetch(categoryUrl , {
-        method: "PUT",
-        body: JSON.stringify(bodyObj),
-        headers: headers
-    })
-    .catch(err => console.error(err))
-
-    categoryEditContainer.classList.add("show")
-    return getArticles(userId);
-}
-
-async function handleCategoryDelete(categoryId){
-    await fetch(categoryUrl + categoryId , {
-        method: "DELETE",
-        headers: headers
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data) {
-            populateAlert(data) }
-    })
-    .catch(err => console.error(err))
-
-    return getArticles(userId);
-}
-
-async function changeCategoryForArticle(articleId, category,target){
+const changeCategoryForArticle = async (articleId, category, target) => {
     const articleToChange = articleRepository.find(article => article.id == articleId);
     articleToChange.category = category;
-    let bodyObj = {
-        id : articleToChange.id,
-        title : articleToChange.title,
+    const bodyObj = {
+        id: articleToChange.id,
+        title: articleToChange.title,
         body: articleToChange.body,
         link: articleToChange.link,
-        relevance : articleToChange.relevance,
+        relevance: articleToChange.relevance,
         created: articleToChange.created,
         user: articleToChange.user,
         category: articleToChange.category
-    }
+    };
 
-     await fetch(articleUrl, {
+    try {
+        await fetch(articleUrl, {
             method: "PUT",
             body: JSON.stringify(bodyObj),
-            headers: headers
-     })
-     .catch(err => console.error(err))
+            headers,
+        });
 
-     switchContext("articles");
-     return getArticles(userId);
-}
+        switchContext("articles");
+        return getArticles(userId);
+    } catch (err) {
+        console.error(err);
+    }
+};
 
-const getButtonCategoryChange = (category) =>
-   ` <button
+const getButtonCategoryChange = (category) => `
+    <button
         id=${category.id}
         class="dropdown-item"
         type="button">
-            ${category.name}
-     </button>`
-
+        ${category.name}
+    </button>
+`;
 
 const populateCategoryMenu = (categories) =>  {
      categoryEditContainerMenu.innerHTML = "";
@@ -282,30 +331,30 @@ const populateSort = (categories) =>  {
 }
 
 const populateCategoryArticles = (categories) => {
-        articles_container.childNodes.forEach(article => {
-            const categoryId = article.getAttribute("data-category-id");
-            const categoryChangeMenuLink = document.getElementById(`${article.id}_dropdownCategoryChange`)
-            categoryChangeMenuLink.addEventListener("click", handleDropdownClick)
-            if (categories.length <= 1) {
-                categoryChangeMenuLink.parentNode.innerHTML = "";
-                return
-            }
-            categories.forEach(category => {
-                if (category.id != categoryId) {
-                    const categoryChangeMenu = document.getElementById(`${article.id}_menu`);
-                    if (categoryChangeMenu) {
-                        const categoryButton = document.createElement("button");
-                        categoryButton.classList.add("dropdown-item");
-                        categoryButton.addEventListener("click", handleDropdownItemClick)
-                        categoryButton.type = "button";
-                        categoryButton.value = category.id;
-                        categoryButton.innerHTML = category.name;
-                        categoryButton.onclick = () => changeCategoryForArticle(article.id, category);
-                        categoryChangeMenu.appendChild(categoryButton);
-                    }
+    articles_container.childNodes.forEach(article => {
+        const categoryId = article.getAttribute("data-category-id");
+        const categoryChangeMenuLink = document.getElementById(`${article.id}_dropdownCategoryChange`)
+        categoryChangeMenuLink.addEventListener("click", handleDropdownClick)
+        if (categories.length <= 1) {
+            categoryChangeMenuLink.parentNode.innerHTML = "";
+            return
+        }
+        categories.forEach(category => {
+            if (category.id != categoryId) {
+                const categoryChangeMenu = document.getElementById(`${article.id}_menu`);
+                if (categoryChangeMenu) {
+                    const categoryButton = document.createElement("button");
+                    categoryButton.classList.add("dropdown-item");
+                    categoryButton.addEventListener("click", handleDropdownItemClick)
+                    categoryButton.type = "button";
+                    categoryButton.value = category.id;
+                    categoryButton.innerHTML = category.name;
+                    categoryButton.onclick = () => changeCategoryForArticle(article.id, category);
+                    categoryChangeMenu.appendChild(categoryButton);
                 }
-            });
+            }
         });
+    });
 }
 
 const populateCategories = () => {
@@ -316,14 +365,14 @@ const populateCategories = () => {
     populateCategoryArticles(categories);
 }
 
-const createArticleCards = (array, search=false) => {
-    search ? articles_container_search.innerHTML = '' : articles_container.innerHTML = '';
-    if (!array.length) return
-    array.forEach(obj => {
-        let articleCard = document.createElement("div")
-        articleCard.classList.add("m-0")
+const createArticleCards = (array, search = false) => {
+    search ? (articles_container_search.innerHTML = "") : (articles_container.innerHTML = "");
+    if (!array.length) return;
+    array.forEach((obj) => {
+        let articleCard = document.createElement("div");
+        articleCard.classList.add("m-0");
         articleCard.id = obj.id;
-        articleCard.setAttribute("data-category-id", obj.category.id)
+        articleCard.setAttribute("data-category-id", obj.category.id);
         articleCard.innerHTML = `
             <div class="card d-flex article-card">
                 <ul class="nav flex-column articles-nav">
@@ -336,13 +385,13 @@ const createArticleCards = (array, search=false) => {
                         <button class="nav-link-article active" onclick="getArticleById(${obj.id})"
                         data-bs-toggle="modal" data-bs-target="#article-edit-modal">
                             <img id="edit" src="media/editActive.svg" alt="Edit">
-                        </button
+                        </button>
                     </li>
                 </ul>
                 <div class="card-body d-flex flex-column  justify-content-between article-card-body">
                     <p class="card-text">${obj.body}</p>
                     <div class="card-footer">
-                        <p class="card-category">${obj.category? obj.category.name : ""}</p>
+                        <p class="card-category">${obj.category ? obj.category.name : ""}</p>
                         <div class="drop-down-container">
                             <div class="dropdown-category-change">
                                 <a class="btn btn-info dropdown-toggle dropdown-container-change" href="#" role="button"
@@ -360,11 +409,14 @@ const createArticleCards = (array, search=false) => {
                     <img src="${obj.imageData}" class="card-img"/>
                 </div>
             </div>
-        `
-        search ? articles_container_search.appendChild(articleCard) : articles_container.append(articleCard);
-    })
-}
-function handleLogout(e){
+        `;
+        search
+            ? articles_container_search.appendChild(articleCard)
+            : articles_container.append(articleCard);
+    });
+};
+
+const handleLogout = (e) =>{
     e.preventDefault
     let c = document.cookie.split(";");
     for(let i in c){
@@ -375,21 +427,15 @@ function handleLogout(e){
 
 const handleDropdownClick = (e) => {
     e.preventDefault();
-    if (e.target.nextElementSibling?.classList.contains("show")) {
-        e.target.nextElementSibling?.classList.remove("show");
-    } else {
-        e.target.nextElementSibling?.classList.add("show");
-    }
-}
+    const dropdownMenu = e.target.nextElementSibling;
+    dropdownMenu?.classList.toggle("show");
+};
 
 const handleDropdownItemClick = (e) => {
     e.preventDefault();
-    if (e.target.parentNode?.classList.contains("show")) {
-        e.target.parentNode?.classList.remove("show");
-    } else {
-        e.target.parentNode?.classList.add("show");
-    }
-}
+    const dropdownMenu = e.target.parentNode;
+    dropdownMenu?.classList.toggle("show");
+};
 
 const populateArticleModal = (obj) =>{
     articleBody.value= ''
@@ -432,8 +478,6 @@ const handleLeavingDropDown = (e) => {
     }
 
     if (e.target.classList.contains("dropdown-container-change")) dropdown = e.target
-
-    console.log(e.target)
 }
 
 getArticles(userId);
