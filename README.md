@@ -34,12 +34,12 @@ To run the NlpApplication, you need to have the following prerequisites:
 Follow these steps to install and run the application:
 1. Clone the repository:
 ```bash
-shell git clone https://github.com/dithiane/articleApp.git
+shell git clone https://github.com/dithiane/nlp-article-library.git
 ```
 2. Navigate to the project directory:
 
 ```bash
-shell cd ArticleAppApplication
+shell cd nlp-article-library
 ```
 3. Build the application using Maven
 ```bash
