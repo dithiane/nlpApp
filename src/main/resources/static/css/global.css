@@ -24,11 +24,13 @@ img {
 
 .alert {
     display: none;
-    position: absolute;
+    position: fixed;
     top: 34rem;
     left: 29rem;
     font-size: large;
     border-radius: 2rem;
+    bottom: 6rem;
+    z-index: 1;
 }
 
 .navbar {

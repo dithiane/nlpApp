@@ -1,5 +1,10 @@
+.app {
+    display: flex;
+    flex-direction: column;
+}
+
 .name {
-    margin-left: 7rem;
+    margin-left: 3rem;
     color: #FFFFFF;
     text-decoration: none;
 }
@@ -30,14 +35,9 @@ section {
   flex: 9;
 }
 
-.container-app-index {
-    display: flex;
-    align-items: stretch;
-    height: 100vh;
-}
-
 .welcome {
     width: 35rem;
+    margin-top: 6rem;
 }
 
 .welcome-mobile {
@@ -56,11 +56,11 @@ section {
     justify-content: center;
     align-items: center;
     position: absolute;
-    z-index: -1
+    z-index: 0;
     right: 24rem;
     top: 13rem;
-    height: 5rem;
-    width: 12rem;
+    height: 9rem;
+    width: 15rem;
 }
 
 .cloud-article{
@@ -72,10 +72,10 @@ section {
     justify-content: center;
     align-items: center;
     position: absolute;
-    z-index: 0;
-    right: 0;
-    top: 27rem;
-    height: 21rem;
+    z-index: -1;
+    left: 23rem;
+    top: 16rem;
+    height: 30rem;
     width: 50rem;
 }
 
@@ -84,7 +84,13 @@ section {
   background-repeat: no-repeat;
   background-position: 84% 133px;
   background-size: contain;
-  min-height: 100vh;
+  min-height: calc(100vh - 160px);
+}
+
+.container-app-index {
+    display: flex;
+    align-items: stretch;
+    height: calc(100vh - 160px);
 }
 
 .login,
@@ -128,8 +134,21 @@ section {
     background: var(--WARNING);
 }
 
+.read-more {
+    text-decoration: none;
+    color: var(--DARK);
+}
+
 .modal-footer {
     justify-content: center;
+}
+
+footer {
+    background-color: var(--DARK-GREY);
+    color: var(--WHITE);
+    position: relative;
+    right: 0;
+    width: 100%;
 }
 
 @media (max-width: 768px) {
@@ -141,6 +160,10 @@ section {
     .cloud {
         right: 9rem;
         top: 6rem;
+    }
+
+    .container-app-index, .container-app-home{
+        height: 87vh;
     }
 }
 
@@ -172,3 +195,4 @@ section {
         right: 4rem;
     }
 }
+

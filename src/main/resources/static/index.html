@@ -14,95 +14,105 @@
     <title>NLP ARTICLE LIBRARY</title>
 </head>
 <body>
-<nav class="navbar">
-    <div class="container-fluid">
-        <a class="name">
-            <img src="../media/logo.svg" alt="NLP ARTICLE LIBRARY">
-            NLP Article Library</a>
-        <div class="alert alert-danger" role="alert"></div>
-    </div>
-</nav>
-<div class="container-app-index">
-    <ul class="nav flex-column">
-        <li id="home_nav" class="nav-item">
-            <a class="nav-link active" href="#">
-                <img id="home" src="media/homeActive.svg" alt="Home">
-            </a>
-        </li>
-        <li id="login_nav" class="nav-item">
-            <a class="nav-link" href="#">
-                <img id="login" src="media/login.svg" alt="Login">
-            </a>
-        </li>
-        <li id="register_nav" class="nav-item">
-            <a class="nav-link" href="#">
-                <img id="register" src="media/register.svg" alt="Register">
-            </a>
-        </li>
-    </ul>
-    <section class="container py-5 h-100">
-            <div class="row d-flex justify-content-center align-items-center h-100">
-                <div class="login">
-                    <div class="card shadow-2-strong">
+<div class="app">
+    <nav class="navbar">
+        <div class="container-fluid">
+            <a class="name">
+                <img src="../media/logo.svg" alt="NLP ARTICLE LIBRARY">
+                NLP Article Library</a>
+            <div class="alert alert-danger" role="alert"></div>
+        </div>
+    </nav>
+    <div class="container-app-index">
+        <ul class="nav flex-column">
+            <li id="home_nav" class="nav-item">
+                <a class="nav-link active" href="#">
+                    <img id="home" src="media/homeActive.svg" alt="Home">
+                </a>
+            </li>
+            <li id="login_nav" class="nav-item">
+                <a class="nav-link" href="#">
+                    <img id="login" src="media/login.svg" alt="Login">
+                </a>
+            </li>
+            <li id="register_nav" class="nav-item">
+                <a class="nav-link" href="#">
+                    <img id="register" src="media/register.svg" alt="Register">
+                </a>
+            </li>
+        </ul>
+        <section class="container py-5 h-100">
+                <div class="row d-flex justify-content-center align-items-center h-100">
+                    <div class="login">
+                        <div class="card shadow-2-strong">
+                                <div class="card-body p-5 text-center">
+                                    <p>Please login your account</p>
+                                    <form id="login-form">
+                                        <div class="form-group">
+                                            <label for="login-username" style="margin: 5px">Username</label>
+                                            <input type="text" class="form-control" id="login-username" placeholder="Username">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="login-password" style="margin: 5px">Password</label>
+                                            <input type="password" class="form-control" id="login-password" placeholder="Password">
+                                        </div>
+                                        <div class="mt-1">
+                                            <button id="submit-button" type="submit" class="btn btn-primary">Login</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    <div class="register">
+                        <div class="card shadow-2-strong">
                             <div class="card-body p-5 text-center">
-                                <p>Please login your account</p>
-                                <form id="login-form">
+                                <p>Please register your account</p>
+                                <form id="register-form">
                                     <div class="form-group">
-                                        <label for="login-username" style="margin: 5px">Username</label>
-                                        <input type="text" class="form-control" id="login-username" placeholder="Username">
+                                        <label for="register-username" style="margin: 5px">Username</label>
+                                        <input type="text" class="form-control" id="register-username" placeholder="Username">
                                     </div>
                                     <div class="form-group">
-                                        <label for="login-password" style="margin: 5px">Password</label>
-                                        <input type="password" class="form-control" id="login-password" placeholder="Password">
+                                        <label for="register-password" style="margin: 5px">Password</label>
+                                        <input type="password" class="form-control" id="register-password" placeholder="Password">
                                     </div>
                                     <div class="mt-1">
-                                        <button id="submit-button" type="submit" class="btn btn-primary">Login</button>
+                                        <button id="submit-button-register" type="submit" class="btn btn-primary">Submit</button>
                                     </div>
                                 </form>
                             </div>
                         </div>
                     </div>
-                <div class="register">
-                    <div class="card shadow-2-strong">
-                        <div class="card-body p-5 text-center">
-                            <p>Please register your account</p>
-                            <form id="register-form">
-                                <div class="form-group">
-                                    <label for="register-username" style="margin: 5px">Username</label>
-                                    <input type="text" class="form-control" id="register-username" placeholder="Username">
-                                </div>
-                                <div class="form-group">
-                                    <label for="register-password" style="margin: 5px">Password</label>
-                                    <input type="password" class="form-control" id="register-password" placeholder="Password">
-                                </div>
-                                <div class="mt-1">
-                                    <button id="submit-button-register" type="submit" class="btn btn-primary">Submit</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <div class="home">
-                    <div class="cloud">Read more... </div>
-                    <p class="welcome-mobile">
-                        <span style="font-weight: 700;"> Welcome</span> to the Natural Language Processing Article Library.<br>
-                        The NLP library uses the Text Classification is MeaningClouds solution for automated document classification.
-                        It assigns one or more categories to a text, using standard domain-specific taxonomies (e.g., IPTC. IAB, ICD-10) or <br>
-                        user-defined categories. The algorithm combines statistical document classification with rule-based filtering, which allows <br>
-                        to obtain a high degree of accuracy and flexibility in a wide range of environments.
-                    </p>
-                    <div class="cloud-article">
-                        <p class="welcome">
+                    <div class="home">
+                        <div class="cloud">
+                            <a class="read-more" href="https://www.meaningcloud.com/" target="_blank">
+                                Read more...
+                            </a>
+                            </div>
+                        <p class="welcome-mobile">
                             <span style="font-weight: 700;"> Welcome</span> to the Natural Language Processing Article Library.<br>
                             The NLP library uses the Text Classification is MeaningClouds solution for automated document classification.
                             It assigns one or more categories to a text, using standard domain-specific taxonomies (e.g., IPTC. IAB, ICD-10) or <br>
-                        user-defined categories. The algorithm combines statistical document classification with rule-based filtering, which allows <br>
-                        to obtain a high degree of accuracy and flexibility in a wide range of environments.
+                            user-defined categories. The algorithm combines statistical document classification with rule-based filtering, which allows <br>
+                            to obtain a high degree of accuracy and flexibility in a wide range of environments.
                         </p>
+                        <div class="cloud-article">
+                            <p class="welcome">
+                                <span style="font-weight: 700;"> Welcome</span> to the Natural Language Processing Article Library.<br>
+                                The NLP library uses the Text Classification is MeaningClouds solution for automated document classification.
+                                It assigns one or more categories to a text, using standard domain-specific taxonomies (e.g., IPTC. IAB, ICD-10) or <br>
+                            user-defined categories. The algorithm combines statistical document classification with rule-based filtering, which allows <br>
+                            to obtain a high degree of accuracy and flexibility in a wide range of environments.
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
-    </section>
+        </section>
+    </div>
+    <footer class="text-center p-4">
+        © 2023 Copyright:
+        <a class="text-reset fw-bold" href="https://dithiane.us">Dithiane</a>
+    </footer>
 </div>
 
 <script src="javascript/index.js" type="application/javascript"></script>

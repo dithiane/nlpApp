@@ -12,11 +12,14 @@ const cardImage = document.querySelector(".card-img")
 const btnImageDelete = document.querySelector(".delete-modal")
 const customFile = document.getElementById("custom-file")
 const customFileModal = document.getElementById("custom-file-modal")
+const containerApp = document.querySelector(".container-app-home")
 
 const btnSort = document.querySelector(".btn-sort");
 
 const dropDownMenuItem= document.getElementById(".dropdown-item")
 const submitForm = document.getElementById("article-form")
+
+let dropdown = null
 
 const categoryEditContainer = document.querySelector(".dropdown-category-edit")
 const categoryEditContainerMenu = document.querySelector(".dropdown-menu-category-edit")
@@ -44,7 +47,7 @@ const toBase64 = file => new Promise((resolve, reject) => {
 
 const handleSearchSubmit = async (e) => {
      e.preventDefault()
-     let body= document.getElementById("search-input").value.trim().toLowerCase();
+     let body = document.getElementById("search-input").value.trim().toLowerCase();
      getArticlesByBody(body)
 
      document.getElementById("search-input").value = ''
@@ -128,7 +131,10 @@ async function getArticlesByBody(body='') {
         headers: headers
     })
     .then(response => response.json())
-    .then(data => createArticleCards(data, true))
+    .then(data => {
+        createArticleCards(data, true)
+        populateCategoryArticles(categories);
+    })
     .catch(err => console.error(err))
 }
 
@@ -169,6 +175,7 @@ async function handleArticleEdit(articleId){
     .catch(err => console.error(err))
 
     document.getElementById("custom-file-modal").value = ''
+    switchContext("articles");
     return getArticles(userId);
 }
 
@@ -186,6 +193,7 @@ async function handleCategoryEdit(category){
     })
     .catch(err => console.error(err))
 
+    categoryEditContainer.classList.add("show")
     return getArticles(userId);
 }
 
@@ -225,6 +233,7 @@ async function changeCategoryForArticle(articleId, category,target){
      })
      .catch(err => console.error(err))
 
+     switchContext("articles");
      return getArticles(userId);
 }
 
@@ -250,6 +259,7 @@ const populateCategoryMenu = (categories) =>  {
             categoryButton.innerText = category.name;
             categoryButton.onclick = () => populateCategoryModal(category);
             categoryEditContainerMenu.appendChild(categoryButton);
+            categoryEditContainerMenu.classList.add("show");
      });
 }
 
@@ -415,6 +425,17 @@ const handleClickSort = (e) => {
     btnSort.innerText = "Sort Categories";
 }
 
+const handleLeavingDropDown = (e) => {
+    if (!e.target.classList.contains("dropdown-toggle") && !e.target.classList.contains("dropdown-item")) {
+        categorySortContainerMenu.classList.remove("show");
+        if (dropdown) dropdown.nextElementSibling.classList.remove("show");
+    }
+
+    if (e.target.classList.contains("dropdown-container-change")) dropdown = e.target
+
+    console.log(e.target)
+}
+
 getArticles(userId);
 
 submitForm?.addEventListener("submit", handleSubmitArticle)
@@ -446,3 +467,5 @@ btnImageDelete.addEventListener("click", handleDeleteImage)
 customFileModal.addEventListener("change", handleLoadFile)
 
 btnSort.addEventListener("click", handleClickSort)
+
+containerApp.addEventListener("click", handleLeavingDropDown)

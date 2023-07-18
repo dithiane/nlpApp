@@ -23,6 +23,7 @@ const add_nav = document.getElementById("add")
 
 const search = document.querySelector(".search")
 const search_nav = document.getElementById("search")
+const searchFormContainer = document.querySelector("article-container-search")
 
 const categoryedit = document.querySelector(".categoryedit")
 const categoryedit_nav = document.getElementById("categoryedit")
@@ -84,6 +85,7 @@ const switchContext = (index) => {
            break;
       case "search":
           if (search) toggleActive("search", search, search_nav, true);
+          if (articles_container_search) articles_container_search.innerHTML = ''
           break;
        case "logout":
            if (logout) toggleActive("logout", logout, logout_nav, true);
